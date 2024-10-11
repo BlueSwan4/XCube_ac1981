@@ -4,7 +4,7 @@
 #include "../engine/XCube2d.h"
 
 // Audio
-Mix_Chunk* jumpSound = NULL;
+Mix_Chunk* shootSound = NULL;
 
 
 MyGame::MyGame() : AbstractGame(), score(0), lives(3), numKeys(5), gameWon(false), box(5, 5, 30, 30) {
@@ -20,8 +20,14 @@ MyGame::MyGame() : AbstractGame(), score(0), lives(3), numKeys(5), gameWon(false
     }
 
 	// Extra added code
-	jumpSound = Mix_LoadWAV("assets/audio/jump.wav");
-	sfx->playSound(jumpSound);
+	shootSound = Mix_LoadWAV("res/audio/shoot.wav");
+	
+	if (shootSound == nullptr) {
+		std::cout << "Null Pointer";
+	}
+	else {
+		sfx->playSound(shootSound);
+	}
 }
 
 MyGame::~MyGame() {
