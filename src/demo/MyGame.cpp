@@ -26,7 +26,7 @@ MyGame::MyGame() : AbstractGame(), score(0), lives(3), numKeys(5), gameWon(false
 		std::cout << "Null Pointer";
 	}
 	else {
-		sfx->playSound(shootSound);
+		sfx->calculateDistanceEffect(shootSound);
 	}
 }
 

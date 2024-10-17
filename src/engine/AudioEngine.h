@@ -40,7 +40,21 @@ class AudioEngine {
 		*/
 		void playMP3(Mix_Music * mp3, const int & times);
 
-		void playSoundAdvanced();
+		/**
+		* Plays WAV files while taking into account panning (Uses constant power panning)
+		*
+		* @param sound - the sound to play
+		* @param xPosPlayer - the x axis position of the player
+		*/
+		void playSoundPanning(Mix_Chunk* sound, float xPosPlayer);
+
+		/**
+		* calculate how distance effects volume of sound (Inverse Square Law)
+		*
+		* @param sound - the sound to play
+		* 
+		*/
+		void calculateDistanceEffect(Mix_Chunk* sound);
 
 };
 
