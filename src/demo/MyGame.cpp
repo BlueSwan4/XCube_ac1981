@@ -4,7 +4,6 @@
 #include "../engine/XCube2d.h"
 
 // Audio
-Mix_Chunk* shootSound = NULL;
 
 
 MyGame::MyGame() : AbstractGame(), score(0), lives(3), numKeys(5), gameWon(false), box(5, 5, 30, 30) {
@@ -19,16 +18,20 @@ MyGame::MyGame() : AbstractGame(), score(0), lives(3), numKeys(5), gameWon(false
         gameKeys.push_back(k);
     }
 
+	Mix_Chunk* sound = ResourceManager::loadSound("res/audio/shoot.wav");
+	shootSound = new AudioElement(sound, Vector3f(0, 0, 50));
+	sfx->playSound(shootSound->getSound());
+
 	// Extra added code
-	shootSound = Mix_LoadWAV("res/audio/shoot.wav");
-	
-	if (shootSound == nullptr) {
+	/*
+	if (shootSound.getSound() == nullptr) {
 		std::cout << "Null Pointer";
 	}
 	else {
 		sfx->playSoundPanning(shootSound, 5);
 		//sfx->calculateDistanceEffect(shootSound);
 	}
+	*/
 }
 
 MyGame::~MyGame() {

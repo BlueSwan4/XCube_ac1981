@@ -13,6 +13,7 @@ class MyGame : public AbstractGame {
 		Rect box;
 
 		Vector2i velocity;
+		AudioElement* shootSound;
 
 		std::vector<std::shared_ptr<GameKey>> gameKeys;
 

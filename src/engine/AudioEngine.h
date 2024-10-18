@@ -4,6 +4,7 @@
 #include <SDL_mixer.h>
 
 #include "EngineCommon.h"
+#include "GameMath.h"
 
 class AudioEngine {
 	friend class XCube2Engine;
@@ -54,7 +55,7 @@ class AudioEngine {
 		* @param sound - the sound to play
 		* @param xPosPlayer - the x axis position of the player
 		*/
-		void playSoundPanning(Mix_Chunk* sound, float xPosPlayer);
+		void playSoundPanning(Mix_Chunk* sound, float xPosPlayer, float xPosSound);
 
 		/**
 		* calculate how distance effects volume of sound (Inverse Square Law)
@@ -64,6 +65,21 @@ class AudioEngine {
 		*/
 		void calculateDistanceEffect(Mix_Chunk* sound);
 
+};
+
+class AudioElement {
+private:
+	Mix_Chunk* sound;
+	Vector3f soundPosition;
+public:
+	// Getters and Setters
+	AudioElement(Mix_Chunk* passedSound, Vector3f passedSoundPosition);
+
+	void setSoundPosition(Vector3f passedSoundPosition);
+	void setSound(Mix_Chunk* passedSound);
+
+	Vector3f getSoundPosition();
+	Mix_Chunk* getSound();
 };
 
 #endif

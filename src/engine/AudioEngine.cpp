@@ -39,27 +39,29 @@ void AudioEngine::emptyChunk(Mix_Chunk* sound) {
 	Mix_FreeChunk(sound);
 }
 
-void AudioEngine::playSoundPanning(Mix_Chunk* sound, float xPosPlayer) {
+void AudioEngine::playSoundPanning(Mix_Chunk* sound, float xPosPlayer, float xPosSound) {
 	// Assuming sound source is at x position 400 (Change later)
 	float panPosition = NULL;
+	float panDistance = 400;
+	float relativeXPosPlayer = xPosPlayer - xPosSound;
+
 
 	// If above 800 or below 0 calculation won't work, change 
 	// later to be width of screen as variable
-	if (xPosPlayer > 800) {
-		xPosPlayer = 800;
+	if (relativeXPosPlayer > panDistance) {
+		relativeXPosPlayer = panDistance;
 	}
-	else if(xPosPlayer < 0){
-		xPosPlayer = 0;
+	else if(relativeXPosPlayer < -panDistance){
+		relativeXPosPlayer = -panDistance;
 	}
 
 	// Converting xPosPlayer into a percentage left or right
 	// of the sound source.
-	if (xPosPlayer > 400) {
-		xPosPlayer -= 400;
-		panPosition = xPosPlayer / 400;
+	if (relativeXPosPlayer > 0) {
+		panPosition = relativeXPosPlayer / 400;
 	}
-	else if (xPosPlayer < 400) {
-		panPosition = (xPosPlayer / 400) - 1;
+	else if (relativeXPosPlayer < 0) {
+		panPosition = (relativeXPosPlayer / 400) - 1;
 	}
 	else if(xPosPlayer == 400){
 		panPosition = 0;
@@ -85,4 +87,25 @@ void AudioEngine::calculateDistanceEffect(Mix_Chunk* sound) {
 	std::cout << "This is new Sound: " << newSoundVolume << "\n";
 	// Doesn't work if set sound, Why? Could be lack of mix_volume_chunk
 	playSound(sound, newSoundVolume);
+}
+
+AudioElement::AudioElement(Mix_Chunk* passedSound, Vector3f passedSoundPosition) {
+	sound = passedSound;
+	soundPosition = passedSoundPosition;
+}
+
+void AudioElement::setSound(Mix_Chunk* passedSound) {
+	sound = passedSound;
+}
+
+void AudioElement::setSoundPosition(Vector3f passedSoundPosition) {
+	soundPosition = passedSoundPosition;
+}
+
+Mix_Chunk* AudioElement::getSound() {
+	return sound;
+}
+
+Vector3f AudioElement::getSoundPosition() {
+	return soundPosition;
 }
