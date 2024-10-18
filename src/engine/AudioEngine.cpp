@@ -35,6 +35,10 @@ void AudioEngine::playMP3(Mix_Music * mp3, const int & times) {
 	Mix_PlayMusic(mp3, times);
 }
 
+void AudioEngine::emptyChunk(Mix_Chunk* sound) {
+	Mix_FreeChunk(sound);
+}
+
 void AudioEngine::playSoundPanning(Mix_Chunk* sound, float xPosPlayer) {
 	// Assuming sound source is at x position 400 (Change later)
 	float panPosition = NULL;
@@ -55,7 +59,7 @@ void AudioEngine::playSoundPanning(Mix_Chunk* sound, float xPosPlayer) {
 		panPosition = xPosPlayer / 400;
 	}
 	else if (xPosPlayer < 400) {
-		panPosition = -(xPosPlayer / 400);
+		panPosition = (xPosPlayer / 400) - 1;
 	}
 	else if(xPosPlayer == 400){
 		panPosition = 0;

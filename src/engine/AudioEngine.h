@@ -41,6 +41,14 @@ class AudioEngine {
 		void playMP3(Mix_Music * mp3, const int & times);
 
 		/**
+		* Frees audio chunks at the end of a session
+		*
+		* @param sound - the sound to play
+		*
+		*/
+		void emptyChunk(Mix_Chunk* sound);
+
+		/**
 		* Plays WAV files while taking into account panning (Uses constant power panning)
 		*
 		* @param sound - the sound to play
@@ -52,7 +60,7 @@ class AudioEngine {
 		* calculate how distance effects volume of sound (Inverse Square Law)
 		*
 		* @param sound - the sound to play
-		* 
+		*
 		*/
 		void calculateDistanceEffect(Mix_Chunk* sound);
 

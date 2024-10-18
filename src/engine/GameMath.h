@@ -32,6 +32,24 @@ struct Vector2i {
 	Vector2i(int x, int y) : x(x), y(y) {}
 };
 
+struct Vector3f {
+	float x;
+	float y;
+	float z;
+
+	Vector3f() : Vector3f(0.0f, 0.0f, 0.0f) {}
+	Vector3f(float x, float y, float z) : x(x), y(y), z(z) {}
+};
+
+struct Vector3i {
+	int x;
+	int y;
+	int z;
+
+	Vector3i() : Vector3i(0, 0, 0) {}
+	Vector3i(int x, int y, int z) : x(x), y(y), z(z) {}
+};
+
 struct Point2 {
 	int x, y;
 
