@@ -10,7 +10,8 @@ struct GameKey {
 
 class MyGame : public AbstractGame {
 	private:
-		Rect box;
+		//Rect box;
+		Vector3f cube;
 
 		Vector2i velocity;
 		AudioElement* shootSound;

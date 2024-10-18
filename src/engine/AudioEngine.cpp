@@ -44,6 +44,7 @@ void AudioEngine::playSoundPanning(Mix_Chunk* sound, float xPosPlayer, float xPo
 	float panPosition = NULL;
 	float panDistance = 400;
 	float relativeXPosPlayer = xPosPlayer - xPosSound;
+	std::cout << "Player Position: " << relativeXPosPlayer << "\n";
 
 
 	// If above 800 or below 0 calculation won't work, change 
@@ -61,13 +62,16 @@ void AudioEngine::playSoundPanning(Mix_Chunk* sound, float xPosPlayer, float xPo
 		panPosition = relativeXPosPlayer / 400;
 	}
 	else if (relativeXPosPlayer < 0) {
-		panPosition = (relativeXPosPlayer / 400) - 1;
+		panPosition = (relativeXPosPlayer / 400);
 	}
-	else if(xPosPlayer == 400){
+	else if(relativeXPosPlayer == 0){
 		panPosition = 0;
 	}
 
-	//std::cout << "Power Pan : " << panPosition << "\n";
+	// Reverse sign to make sound come out of correct side
+	panPosition = -panPosition;
+
+	std::cout << "Power Pan : " << panPosition << "\n";
 
 	// Calculates how much panning
 	float p = ((M_PI * (panPosition + 1))/4);
@@ -87,6 +91,13 @@ void AudioEngine::calculateDistanceEffect(Mix_Chunk* sound) {
 	std::cout << "This is new Sound: " << newSoundVolume << "\n";
 	// Doesn't work if set sound, Why? Could be lack of mix_volume_chunk
 	playSound(sound, newSoundVolume);
+}
+
+void AudioEngine::calculateBehindSound(Mix_Chunk* sound, float zPosPlayer, float zPosSound) {
+	if (zPosPlayer > zPosSound) {
+		float newSoundVolume = getSoundVolume() * 0.7;
+		playSound(sound, newSoundVolume);
+	}
 }
 
 AudioElement::AudioElement(Mix_Chunk* passedSound, Vector3f passedSoundPosition) {

@@ -54,6 +54,8 @@ class AudioEngine {
 		*
 		* @param sound - the sound to play
 		* @param xPosPlayer - the x axis position of the player
+		* @param xPosSound - the x axis position of the sound
+		* 
 		*/
 		void playSoundPanning(Mix_Chunk* sound, float xPosPlayer, float xPosSound);
 
@@ -64,6 +66,14 @@ class AudioEngine {
 		*
 		*/
 		void calculateDistanceEffect(Mix_Chunk* sound);
+
+		/**
+		* Change the volume if the sound is behind the player
+		*
+		* @param sound - the sound to play
+		*
+		*/
+		void calculateBehindSound(Mix_Chunk* sound, float zPosPlayer, float zPosSound);
 
 };
 

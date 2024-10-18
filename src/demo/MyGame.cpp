@@ -4,9 +4,9 @@
 #include "../engine/XCube2d.h"
 
 // Audio
+// box(5, 5, 30, 30)
 
-
-MyGame::MyGame() : AbstractGame(), score(0), lives(3), numKeys(5), gameWon(false), box(5, 5, 30, 30) {
+MyGame::MyGame() : AbstractGame(), score(0), lives(3), numKeys(5), gameWon(false), cube(0, 0 ,0) {
 	TTF_Font * font = ResourceManager::loadFont("res/fonts/arial.ttf", 72);
 	gfx->useFont(font);
 	gfx->setVerticalSync(true);
@@ -19,8 +19,9 @@ MyGame::MyGame() : AbstractGame(), score(0), lives(3), numKeys(5), gameWon(false
     }
 
 	Mix_Chunk* sound = ResourceManager::loadSound("res/audio/shoot.wav");
-	shootSound = new AudioElement(sound, Vector3f(0, 0, 50));
-	sfx->playSound(shootSound->getSound());
+	shootSound = new AudioElement(sound, Vector3f(0, 0, -300));
+	sfx->calculateBehindSound(shootSound->getSound(), 0, shootSound->getSoundPosition().z);
+	//sfx->playSound(shootSound->getSound());
 
 	// Extra added code
 	/*
@@ -59,16 +60,18 @@ void MyGame::handleKeyEvents() {
 }
 
 void MyGame::update() {
-	box.x += velocity.x;
-	box.y += velocity.y;
+	cube.x += velocity.x;
+	cube.y += velocity.y;
+
 
 	for (auto key : gameKeys) {
-		if (key->isAlive && box.contains(key->pos)) {
+		if (key->isAlive && Rect(cube.x, cube.y, 30, 30).contains(key->pos)) {
 			score += 200;
 			key->isAlive = false;
 			numKeys--;
 		}
 	}
+
 
 	velocity.x = 0;
     velocity.y = 0;
@@ -80,7 +83,7 @@ void MyGame::update() {
 
 void MyGame::render() {
 	gfx->setDrawColor(SDL_COLOR_RED);
-	gfx->drawRect(box);
+	gfx->drawRect(Rect(cube.x, cube.y, 30, 30));
 
 	gfx->setDrawColor(SDL_COLOR_YELLOW);
 	for (auto key : gameKeys)
