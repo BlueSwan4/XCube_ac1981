@@ -81,10 +81,22 @@ void AudioEngine::playSoundPanning(Mix_Chunk* sound, float xPosPlayer, float xPo
 	Mix_PlayChannel(1, sound, 0);
 }
 
-void AudioEngine::calculateDistanceEffect(Mix_Chunk* sound) {
-	float distanceSound = 10;
+void AudioEngine::calculateDistanceEffect(Mix_Chunk* sound, Vector3f playerPos, Vector3f soundPos) {
+	float distanceSound = sqrt(pow(playerPos.x - soundPos.x, 2) + pow(playerPos.y - soundPos.y, 2) + pow(playerPos.z - soundPos.z, 2));
 	// Could replace 1 with the power of sound at some point to be more accurate
-	float newSoundVolume = (1 / (distanceSound * distanceSound)) * MIX_MAX_VOLUME;
+	float newSoundVolume = (1 / pow(distanceSound, 2) * MIX_MAX_VOLUME);
+	if (newSoundVolume < 1) {
+		newSoundVolume = 0;
+	}
+	std::cout << "This is new Sound: " << newSoundVolume << "\n";
+	// Doesn't work if set sound, Why? Could be lack of mix_volume_chunk
+	playSound(sound, newSoundVolume);
+}
+
+void AudioEngine::calculateDistanceEffect(Mix_Chunk* sound, Vector2f playerPos, Vector2f soundPos) {
+	float distanceSound = sqrt(pow(playerPos.x - soundPos.x, 2) + pow(playerPos.y - soundPos.y, 2));
+	// Could replace 1 with the power of sound at some point to be more accurate
+	float newSoundVolume = (1 / pow(distanceSound, 2) * MIX_MAX_VOLUME);
 	if (newSoundVolume < 1) {
 		newSoundVolume = 0;
 	}

@@ -60,12 +60,24 @@ class AudioEngine {
 		void playSoundPanning(Mix_Chunk* sound, float xPosPlayer, float xPosSound);
 
 		/**
-		* calculate how distance effects volume of sound (Inverse Square Law)
+		* calculate how distance effects volume of sound in 3D (Inverse Square Law)
 		*
 		* @param sound - the sound to play
+		* @param playerPos - the Vector3 position of the player
+		* @param soundPos - the Vector3 position of the sound
 		*
 		*/
-		void calculateDistanceEffect(Mix_Chunk* sound);
+		void calculateDistanceEffect(Mix_Chunk* sound, Vector3f playerPos, Vector3f soundPos);
+
+		/**
+		* calculate how distance effects volume of sound in 2D (Inverse Square Law)
+		*
+		* @param sound - the sound to play
+		* @param playerPos - the Vector2 position of the player
+		* @param soundPos - the Vector2 position of the sound
+		*
+		*/
+		void calculateDistanceEffect(Mix_Chunk* sound, Vector2f playerPos, Vector2f soundPos);
 
 		/**
 		* Change the volume if the sound is behind the player

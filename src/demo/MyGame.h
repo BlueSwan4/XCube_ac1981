@@ -13,10 +13,14 @@ class MyGame : public AbstractGame {
 		//Rect box;
 		Vector3f cube;
 
-		Vector2i velocity;
+		Vector3i velocity;
 		AudioElement* shootSound;
 
 		std::vector<std::shared_ptr<GameKey>> gameKeys;
+
+		/* UI */
+		const int WINDOW_WIDTH = 800;
+		const int WINDOW_HEIGHT = 600;
 
 		/* GAMEPLAY */
 		int score, numKeys, lives;

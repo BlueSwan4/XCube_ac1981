@@ -10,6 +10,7 @@ MyGame::MyGame() : AbstractGame(), score(0), lives(3), numKeys(5), gameWon(false
 	TTF_Font * font = ResourceManager::loadFont("res/fonts/arial.ttf", 72);
 	gfx->useFont(font);
 	gfx->setVerticalSync(true);
+	gfx->setWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
 
     for (int i = 0; i < numKeys; i++) {
         std::shared_ptr<GameKey> k = std::make_shared<GameKey>();
@@ -19,8 +20,10 @@ MyGame::MyGame() : AbstractGame(), score(0), lives(3), numKeys(5), gameWon(false
     }
 
 	Mix_Chunk* sound = ResourceManager::loadSound("res/audio/shoot.wav");
+	Mix_Music* background_music = ResourceManager::loadMP3("res/audio/background_Music.wav");
 	shootSound = new AudioElement(sound, Vector3f(0, 0, -300));
 	sfx->calculateBehindSound(shootSound->getSound(), 0, shootSound->getSoundPosition().z);
+	sfx->playMP3(background_music, -1);
 	//sfx->playSound(shootSound->getSound());
 
 	// Extra added code
@@ -57,12 +60,36 @@ void MyGame::handleKeyEvents() {
 	if (eventSystem->isPressed(Key::D)) {
 		velocity.x = speed;
 	}
+	if (eventSystem->isPressed(Key::UP)) {
+		velocity.z = speed;
+	}
+	if (eventSystem->isPressed(Key::DOWN)) {
+		velocity.z = -speed;
+	}
 }
 
+// Use cube.z so you can move forward and backwards, y movement not important for demo
 void MyGame::update() {
 	cube.x += velocity.x;
+
+	if (cube.x <= 0) {
+		cube.x = 0;
+	}
+	else if (cube.x >= WINDOW_WIDTH) {
+		cube.x = WINDOW_WIDTH;
+	}
+
 	cube.y += velocity.y;
 
+	cube.y += velocity.y;
+	if (cube.y <= 0) {
+		cube.y = 0;
+	}
+	else if (cube.y >= WINDOW_HEIGHT) {
+		cube.y = WINDOW_HEIGHT;
+	}
+
+	cube.z += velocity.z;
 
 	for (auto key : gameKeys) {
 		if (key->isAlive && Rect(cube.x, cube.y, 30, 30).contains(key->pos)) {
@@ -75,6 +102,7 @@ void MyGame::update() {
 
 	velocity.x = 0;
     velocity.y = 0;
+	velocity.z = 0;
 
 	if (numKeys == 0) {
 		gameWon = true;
