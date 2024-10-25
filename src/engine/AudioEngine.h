@@ -2,6 +2,7 @@
 #define __AUDIO_ENGINE_H__
 
 #include <SDL_mixer.h>
+#include <SDL.h>
 
 #include "EngineCommon.h"
 #include "GameMath.h"
@@ -32,6 +33,14 @@ class AudioEngine {
 		* @param volume - the volume at which to play in range [0..128]
 		*/
 		void playSound(Mix_Chunk * sound, const int & _volume);
+
+		/**
+		* Call this to manually specify the volume of the sound
+		*
+		* @param sound - the sound to play
+		* @param channel - the channel to play the sound through
+		*/
+		void playSoundChannel(Mix_Chunk* sound, int channel);
 
 		/**
 		* Plays mp3 file given amount of times
@@ -83,9 +92,21 @@ class AudioEngine {
 		* Change the volume if the sound is behind the player
 		*
 		* @param sound - the sound to play
+		* @param zPosPlayer - z position of the player
+		* @param zPosSound - z position of the sound
 		*
 		*/
 		void calculateBehindSound(Mix_Chunk* sound, float zPosPlayer, float zPosSound);
+
+		/**
+		* Fade out the sound on a channel
+		*
+		* @param channel - Tells which channel to effect
+		* @param fadeTimeStart - When the fade out started (used to calculate volume)
+		* @param fadeTimeEnd - When the fade out is ending (used to calculate volume)
+		*
+		*/
+		void fadeOut(int channel, float fadeTimeStart, float fadeTimeEnd);
 
 };
 
@@ -93,15 +114,34 @@ class AudioElement {
 private:
 	Mix_Chunk* sound;
 	Vector3f soundPosition;
+	int channel;
+	float fadeTimeStart;
+	float fadeTimeEnd;
 public:
-	// Getters and Setters
-	AudioElement(Mix_Chunk* passedSound, Vector3f passedSoundPosition);
+	// Constructor
+	AudioElement();
+	AudioElement(Mix_Chunk* passedSound, Vector3f passedSoundPosition, int passedChannel);
 
+	/**
+	* Set up the paramaters for fading out a sound
+	*
+	* @param passedFadeTime - duration of time to fade out over
+	*
+	*/
+	void startFadingOut(float passedFadeTime);
+
+	// Getters and Setters
 	void setSoundPosition(Vector3f passedSoundPosition);
 	void setSound(Mix_Chunk* passedSound);
+	void setChannel(int passedChannel);
+	void setFadeTimeStart(float passedFadeTimeStart);
+	void setFadeTimeEnd(float passedFadeTimeEnd);
 
 	Vector3f getSoundPosition();
 	Mix_Chunk* getSound();
+	int getChannel();
+	float getFadeTimeStart();
+	float getFadeTimeEnd();
 };
 
 #endif

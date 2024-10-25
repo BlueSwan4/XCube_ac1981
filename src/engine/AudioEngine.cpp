@@ -4,6 +4,7 @@
 AudioEngine::AudioEngine() : soundOn(true), volume(MIX_MAX_VOLUME) {
 	if (Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, MIX_DEFAULT_CHANNELS, 4096) < 0)
 		throw EngineException("Failed to init SDL_mixer:", Mix_GetError());
+	Mix_AllocateChannels(16);
 }
 
 AudioEngine::~AudioEngine() {}
@@ -28,6 +29,13 @@ void AudioEngine::playSound(Mix_Chunk * sound, const int & _volume) {
 	if (soundOn) {
 		Mix_VolumeChunk(sound, _volume);
 		Mix_PlayChannel(-1, sound, 0);
+	}
+}
+
+void AudioEngine::playSoundChannel(Mix_Chunk* sound, int channel) {
+	if (soundOn) {
+		Mix_VolumeChunk(sound, volume);
+		Mix_PlayChannel(channel, sound, 0);
 	}
 }
 
@@ -90,7 +98,9 @@ void AudioEngine::calculateDistanceEffect(Mix_Chunk* sound, Vector3f playerPos, 
 	}
 	std::cout << "This is new Sound: " << newSoundVolume << "\n";
 	// Doesn't work if set sound, Why? Could be lack of mix_volume_chunk
-	playSound(sound, newSoundVolume);
+	//setSoundVolume(newSoundVolume);
+	setSoundVolume(newSoundVolume);
+	playSound(sound);
 }
 
 void AudioEngine::calculateDistanceEffect(Mix_Chunk* sound, Vector2f playerPos, Vector2f soundPos) {
@@ -102,7 +112,8 @@ void AudioEngine::calculateDistanceEffect(Mix_Chunk* sound, Vector2f playerPos, 
 	}
 	std::cout << "This is new Sound: " << newSoundVolume << "\n";
 	// Doesn't work if set sound, Why? Could be lack of mix_volume_chunk
-	playSound(sound, newSoundVolume);
+	setSoundVolume(newSoundVolume);
+	playSound(sound);
 }
 
 void AudioEngine::calculateBehindSound(Mix_Chunk* sound, float zPosPlayer, float zPosSound) {
@@ -112,9 +123,33 @@ void AudioEngine::calculateBehindSound(Mix_Chunk* sound, float zPosPlayer, float
 	}
 }
 
-AudioElement::AudioElement(Mix_Chunk* passedSound, Vector3f passedSoundPosition) {
+void AudioEngine::fadeOut(int channel, float fadeTimeStart, float fadeTimeEnd) {
+	// Got to get from max volume to 0
+	if (fadeTimeEnd > SDL_GetTicks()) {
+		std::cout << "Running";
+	}
+}
+
+AudioElement::AudioElement() {
+	sound = NULL;
+	soundPosition = Vector3f(0,0,0);
+	channel = -1;
+	fadeTimeStart = 0;
+	fadeTimeEnd = 0;
+}
+
+AudioElement::AudioElement(Mix_Chunk* passedSound, Vector3f passedSoundPosition, int passedChannel) {
 	sound = passedSound;
 	soundPosition = passedSoundPosition;
+	channel = passedChannel;
+	fadeTimeStart = false;
+	fadeTimeEnd = 0;
+}
+
+void AudioElement::startFadingOut(float passedFadeTime) {
+	setFadeTimeStart(SDL_GetTicks());
+	setFadeTimeEnd(passedFadeTime + SDL_GetTicks());
+
 }
 
 void AudioElement::setSound(Mix_Chunk* passedSound) {
@@ -125,10 +160,34 @@ void AudioElement::setSoundPosition(Vector3f passedSoundPosition) {
 	soundPosition = passedSoundPosition;
 }
 
+void AudioElement::setChannel(int passedChannel) {
+	channel = passedChannel;
+}
+
+void AudioElement::setFadeTimeStart(float passedFadeTimeStart) {
+	fadeTimeStart = passedFadeTimeStart;
+}
+
+void AudioElement::setFadeTimeEnd(float passedFadeTimeEnd) {
+	fadeTimeEnd = passedFadeTimeEnd;
+}
+
 Mix_Chunk* AudioElement::getSound() {
 	return sound;
 }
 
 Vector3f AudioElement::getSoundPosition() {
 	return soundPosition;
+}
+
+int AudioElement::getChannel() {
+	return channel;
+}
+
+float AudioElement::getFadeTimeStart() {
+	return fadeTimeStart;
+}
+
+float AudioElement::getFadeTimeEnd() {
+	return fadeTimeEnd;
 }

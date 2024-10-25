@@ -15,6 +15,8 @@ class MyGame : public AbstractGame {
 
 		Vector3i velocity;
 		AudioElement* shootSound;
+		AudioElement* jumpSound;
+		AudioElement* backgroundSound;
 
 		std::vector<std::shared_ptr<GameKey>> gameKeys;
 
