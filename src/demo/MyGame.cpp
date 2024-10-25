@@ -78,6 +78,7 @@ void MyGame::handleKeyEvents() {
 	}
 }
 
+// DELETE LATER: JUST FOR TESTING
 float testFunction(float testFloat) {
 	std::cout << "Working" << testFloat;
 	return testFloat;
@@ -124,7 +125,7 @@ void MyGame::update() {
 	}
 
 	// Audio Fading
-	sfx->fadeOut(backgroundSound->getSound(), backgroundSound->getChannel(), backgroundSound->getFadeTimeStart(), backgroundSound->getFadeTimeEnd(), &testFunction);
+	sfx->fadeOut(backgroundSound->getSound(), backgroundSound->getFadeTimeStart(), backgroundSound->getFadeTimeEnd(), &testFunction);
 }
 
 void MyGame::render() {

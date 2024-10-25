@@ -99,16 +99,28 @@ class AudioEngine {
 		void calculateBehindSound(Mix_Chunk* sound, float zPosPlayer, float zPosSound);
 
 		/**
-		* Fade out the sound on a channel
-		*
-		* @param channel - Tells which channel to effect
+		* Fade out sound chunk
+		* 
+		* @param sound - the sound to fade out
 		* @param fadeTimeStart - When the fade out started (used to calculate volume)
 		* @param fadeTimeEnd - When the fade out is ending (used to calculate volume)
-		* @param fadeTimeEnd - A function to chnagethe fading graph from linear to another funtion
+		* @param func - A function to chnagethe fading graph from linear to another funtion
 		*
 		*/
-		void fadeOut(Mix_Chunk* sound, int channel, float fadeTimeStart, float fadeTimeEnd);
-		void fadeOut(Mix_Chunk* sound, int channel, float fadeTimeStart, float fadeTimeEnd, float(*func)(float));
+		void fadeOut(Mix_Chunk* sound, float fadeTimeStart, float fadeTimeEnd);
+		void fadeOut(Mix_Chunk* sound, float fadeTimeStart, float fadeTimeEnd, float(*func)(float));
+
+		/**
+		* Fade in sound chunk
+		*
+		* @param sound - the sound to fade in
+		* @param fadeTimeStart - When the fade out started (used to calculate volume)
+		* @param fadeTimeEnd - When the fade out is ending (used to calculate volume)
+		* @param func - A function to chnagethe fading graph from linear to another funtion
+		*
+		*/
+		void fadeIn(Mix_Chunk* sound, float fadeTimeStart, float fadeTimeEnd);
+		void fadeIn(Mix_Chunk* sound, float fadeTimeStart, float fadeTimeEnd, float(*func)(float));
 
 };
 
