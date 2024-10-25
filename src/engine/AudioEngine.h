@@ -104,9 +104,11 @@ class AudioEngine {
 		* @param channel - Tells which channel to effect
 		* @param fadeTimeStart - When the fade out started (used to calculate volume)
 		* @param fadeTimeEnd - When the fade out is ending (used to calculate volume)
+		* @param fadeTimeEnd - A function to chnagethe fading graph from linear to another funtion
 		*
 		*/
-		void fadeOut(int channel, float fadeTimeStart, float fadeTimeEnd);
+		void fadeOut(Mix_Chunk* sound, int channel, float fadeTimeStart, float fadeTimeEnd);
+		void fadeOut(Mix_Chunk* sound, int channel, float fadeTimeStart, float fadeTimeEnd, float(*func)(float));
 
 };
 

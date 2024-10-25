@@ -123,10 +123,31 @@ void AudioEngine::calculateBehindSound(Mix_Chunk* sound, float zPosPlayer, float
 	}
 }
 
-void AudioEngine::fadeOut(int channel, float fadeTimeStart, float fadeTimeEnd) {
+void AudioEngine::fadeOut(Mix_Chunk* sound, int channel, float fadeTimeStart, float fadeTimeEnd) {
 	// Got to get from max volume to 0
+	float totalTime = fadeTimeEnd - fadeTimeStart;
+	float timeLeft = fadeTimeEnd - SDL_GetTicks();
+	float newVolume = (timeLeft / totalTime) * 128;
 	if (fadeTimeEnd > SDL_GetTicks()) {
-		std::cout << "Running";
+		float totalTime = fadeTimeEnd - fadeTimeStart;
+		float timeLeft = fadeTimeEnd - SDL_GetTicks();
+		float newVolume = (timeLeft / totalTime) * 128;
+		std::cout << newVolume << " V ";
+		Mix_VolumeChunk(sound, newVolume);
+	}
+}
+
+void AudioEngine::fadeOut(Mix_Chunk* sound, int channel, float fadeTimeStart, float fadeTimeEnd, float (*func)(float)) {
+	// Got to get from max volume to 0
+	float totalTime = fadeTimeEnd - fadeTimeStart;
+	float timeLeft = fadeTimeEnd - SDL_GetTicks();
+	float newVolume = (timeLeft / totalTime) * 128;
+	if (fadeTimeEnd > SDL_GetTicks()) {
+		float totalTime = fadeTimeEnd - fadeTimeStart;
+		float timeLeft = fadeTimeEnd - SDL_GetTicks();
+		float newVolume = func((timeLeft / totalTime) * 128);
+		std::cout << newVolume << " V ";
+		Mix_VolumeChunk(sound, newVolume);
 	}
 }
 

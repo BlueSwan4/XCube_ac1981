@@ -71,12 +71,16 @@ void MyGame::handleKeyEvents() {
 		velocity.z = -speed;
 	}
 	if (eventSystem->isPressed(Key::SPACE)) {
-		backgroundSound->startFadingOut(2000);
-		sfx->fadeOut(backgroundSound->getChannel(), backgroundSound->getFadeTimeStart(), backgroundSound->getFadeTimeEnd());
+		backgroundSound->startFadingOut(5000);
 	}
 	if (eventSystem->isPressed(Key::LEFT)) {
 		sfx->playSound(backgroundSound->getSound());
 	}
+}
+
+float testFunction(float testFloat) {
+	std::cout << "Working" << testFloat;
+	return testFloat;
 }
 
 // Use cube.z so you can move forward and backwards, y movement not important for demo
@@ -120,7 +124,7 @@ void MyGame::update() {
 	}
 
 	// Audio Fading
-	sfx->fadeOut(backgroundSound->getChannel(), backgroundSound->getFadeTimeStart(), backgroundSound->getFadeTimeEnd());
+	sfx->fadeOut(backgroundSound->getSound(), backgroundSound->getChannel(), backgroundSound->getFadeTimeStart(), backgroundSound->getFadeTimeEnd(), &testFunction);
 }
 
 void MyGame::render() {
