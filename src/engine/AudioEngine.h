@@ -3,6 +3,8 @@
 
 #include <SDL_mixer.h>
 #include <SDL.h>
+#include <string>
+#include <map>
 
 #include "EngineCommon.h"
 #include "GameMath.h"
@@ -13,6 +15,7 @@ class AudioEngine {
 		AudioEngine();
 		bool soundOn;
 		int volume;
+		std::map<std::string, int> tags;
 	public:
 		~AudioEngine();
 		void toggleSound();
@@ -122,6 +125,25 @@ class AudioEngine {
 		void fadeIn(Mix_Chunk* sound, float fadeTimeStart, float fadeTimeEnd);
 		void fadeIn(Mix_Chunk* sound, float fadeTimeStart, float fadeTimeEnd, float(*func)(float));
 
+		/**
+		* Assigns a channel to a group
+		*
+		* @param channel - the channel to add to a group
+		* @param group - the group to add the channel to
+		*
+		*/
+
+		void groupChannel(int channel, std::string groupTag);
+
+		/**
+		* Adds a tag to the tag map and a corresponding number
+		*
+		* @param newTag - the name of the new tag
+		*
+		*/
+
+		void addTag(std::string newTag);
+
 };
 
 class AudioElement {
@@ -131,6 +153,7 @@ private:
 	int channel;
 	float fadeTimeStart;
 	float fadeTimeEnd;
+	std::string groupTag;
 public:
 	// Constructor
 	AudioElement();
@@ -150,12 +173,14 @@ public:
 	void setChannel(int passedChannel);
 	void setFadeTimeStart(float passedFadeTimeStart);
 	void setFadeTimeEnd(float passedFadeTimeEnd);
+	void setGroupTag(std::string passedGroupTag);
 
 	Vector3f getSoundPosition();
 	Mix_Chunk* getSound();
 	int getChannel();
 	float getFadeTimeStart();
 	float getFadeTimeEnd();
+	std::string getGroupTag();
 };
 
 #endif

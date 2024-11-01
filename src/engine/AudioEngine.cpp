@@ -43,6 +43,16 @@ void AudioEngine::playMP3(Mix_Music * mp3, const int & times) {
 	Mix_PlayMusic(mp3, times);
 }
 
+void AudioEngine::groupChannel(int channel, std::string groupTag) {
+	int group = tags.at(groupTag);
+	Mix_GroupChannel(channel, group);
+}
+
+void AudioEngine::addTag(std::string newTag) {
+	int newNumber = tags.size();
+	tags[newTag] = newNumber;
+}
+
 void AudioEngine::emptyChunk(Mix_Chunk* sound) {
 	Mix_FreeChunk(sound);
 }
@@ -169,12 +179,14 @@ AudioElement::AudioElement() {
 	channel = -1;
 	fadeTimeStart = 0;
 	fadeTimeEnd = 0;
+	groupTag = "";
 }
 
 AudioElement::AudioElement(Mix_Chunk* passedSound, Vector3f passedSoundPosition, int passedChannel) {
 	sound = passedSound;
 	soundPosition = passedSoundPosition;
 	channel = passedChannel;
+	groupTag = "";
 	fadeTimeStart = false;
 	fadeTimeEnd = 0;
 }
@@ -205,6 +217,10 @@ void AudioElement::setFadeTimeEnd(float passedFadeTimeEnd) {
 	fadeTimeEnd = passedFadeTimeEnd;
 }
 
+void AudioElement::setGroupTag(std::string passedGroupTag) {
+	groupTag = passedGroupTag;
+}
+
 Mix_Chunk* AudioElement::getSound() {
 	return sound;
 }
@@ -223,4 +239,8 @@ float AudioElement::getFadeTimeStart() {
 
 float AudioElement::getFadeTimeEnd() {
 	return fadeTimeEnd;
+}
+
+std::string AudioElement::getGroupTag() {
+	return groupTag;
 }

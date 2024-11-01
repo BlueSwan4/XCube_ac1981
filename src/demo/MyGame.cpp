@@ -20,11 +20,11 @@ MyGame::MyGame() : AbstractGame(), score(0), lives(3), numKeys(5), gameWon(false
     }
 
 	Mix_Chunk* soundOne = ResourceManager::loadSound("res/audio/shoot.wav");
-	Mix_Chunk* soundTwo = ResourceManager::loadSound("res/audio/jump.wav");
+	//Mix_Chunk* soundTwo = ResourceManager::loadSound("res/audio/jump.wav");
 	Mix_Chunk* soundThree = ResourceManager::loadSound("res/audio/background_Music.wav");
-	Mix_Music* background_music = ResourceManager::loadMP3("res/audio/DDLoop1.wav");
+	//Mix_Music* background_music = ResourceManager::loadMP3("res/audio/DDLoop1.wav");
 	shootSound = new AudioElement(soundOne, Vector3f(0, 0, 2), -1);
-	jumpSound = new AudioElement(soundTwo, Vector3f(0, 0, 0), -1);
+	//jumpSound = new AudioElement(soundTwo, Vector3f(0, 0, 0), -1);
 	backgroundSound = new AudioElement(soundThree, Vector3f(0, 0, 0), 3);
 
 	//sfx->calculateDistanceEffect(shootSound->getSound(), cube, shootSound->getSoundPosition());
@@ -78,12 +78,6 @@ void MyGame::handleKeyEvents() {
 	}
 }
 
-// DELETE LATER: JUST FOR TESTING
-float testFunction(float testFloat) {
-	std::cout << "Working" << testFloat;
-	return testFloat;
-}
-
 // Use cube.z so you can move forward and backwards, y movement not important for demo
 void MyGame::update() {
 	cube.x += velocity.x;
@@ -125,7 +119,7 @@ void MyGame::update() {
 	}
 
 	// Audio Fading
-	sfx->fadeOut(backgroundSound->getSound(), backgroundSound->getFadeTimeStart(), backgroundSound->getFadeTimeEnd(), &testFunction);
+	sfx->fadeOut(backgroundSound->getSound(), backgroundSound->getFadeTimeStart(), backgroundSound->getFadeTimeEnd());
 }
 
 void MyGame::render() {
