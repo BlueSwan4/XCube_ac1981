@@ -95,11 +95,13 @@ class AudioEngine {
 		* Change the volume if the sound is behind the player
 		*
 		* @param sound - the sound to play
-		* @param zPosPlayer - z position of the player
-		* @param zPosSound - z position of the sound
+		* @param playerPos - position of the player
+		* @param soundPos - position of the sound
+		* @param playerRotation - rotation of the player
+		* @param soundRotation - rotation of the sound
 		*
 		*/
-		void calculateBehindSound(Mix_Chunk* sound, float zPosPlayer, float zPosSound);
+		void calculateBehindSound(Mix_Chunk* sound, Vector3f playerPos, Vector3f soundPos, int playerRotation, int soundRotation);
 
 		/**
 		* Fade out sound chunk
@@ -147,9 +149,8 @@ class AudioEngine {
 };
 
 class AudioElement {
-private:
+protected:
 	Mix_Chunk* sound;
-	Vector3f soundPosition;
 	int channel;
 	float fadeTimeStart;
 	float fadeTimeEnd;
@@ -157,7 +158,7 @@ private:
 public:
 	// Constructor
 	AudioElement();
-	AudioElement(Mix_Chunk* passedSound, Vector3f passedSoundPosition, int passedChannel);
+	AudioElement(Mix_Chunk* passedSound, int passedChannel);
 
 	/**
 	* Set up the paramaters for fading out a sound
@@ -168,19 +169,45 @@ public:
 	void startFadingOut(float passedFadeTime);
 
 	// Getters and Setters
-	void setSoundPosition(Vector3f passedSoundPosition);
 	void setSound(Mix_Chunk* passedSound);
 	void setChannel(int passedChannel);
 	void setFadeTimeStart(float passedFadeTimeStart);
 	void setFadeTimeEnd(float passedFadeTimeEnd);
 	void setGroupTag(std::string passedGroupTag);
 
-	Vector3f getSoundPosition();
 	Mix_Chunk* getSound();
 	int getChannel();
 	float getFadeTimeStart();
 	float getFadeTimeEnd();
 	std::string getGroupTag();
+};
+
+class AudioElement2D : public AudioElement{
+private:
+	Vector2f soundPosition2D;
+public:
+	// Constructor
+	AudioElement2D(Mix_Chunk* passedSound, Vector2f passedSoundPosition, int passedChannel);
+
+	// Getters and Setters
+	void setSoundPosition2D(Vector2f passedSoundPosition);
+	Vector2f getSoundPosition2D();
+};
+
+class AudioElement3D : public AudioElement {
+private:
+	Vector3f soundPosition3D;
+	int soundRotation;
+public:
+	// Constructor
+	AudioElement3D(Mix_Chunk* passedSound, Vector3f passedSoundPosition, int passedChannel);
+
+	// Getters and Setters
+	void setSoundPosition3D(Vector3f passedSoundPosition);
+	void setSoundRotation(int passedSoundRotation);
+
+	Vector3f getSoundPosition3D();
+	int getSoundRotation();
 };
 
 #endif

@@ -126,10 +126,62 @@ void AudioEngine::calculateDistanceEffect(Mix_Chunk* sound, Vector2f playerPos, 
 	playSound(sound);
 }
 
-void AudioEngine::calculateBehindSound(Mix_Chunk* sound, float zPosPlayer, float zPosSound) {
-	if (zPosPlayer > zPosSound) {
+void AudioEngine::calculateBehindSound(Mix_Chunk* sound, Vector3f playerPos, Vector3f soundPos, int playerRotation, int soundRotation) {
+	/*
+	int anglePlayerToSoundRad = acos(((playerPos.x * soundPos.z) + (playerPos.z + soundPos.x) /
+		((sqrt(pow(playerPos.x, 2) + pow(playerPos.z, 2) * sqrt(pow(soundPos.x, 2) + pow(soundPos.z, 2)))))));
+	int anglePlayerToSoundDeg = anglePlayerToSoundRad * 180 / M_PI;
+	std::cout << "Angle Beforeeeee: " << anglePlayerToSoundRad;
+	std::cout << "Angle Before: " << anglePlayerToSoundDeg;
+
+	float angleDiff = ((playerRotation - anglePlayerToSoundDeg + 180 + 360) % 360) - 180;
+	std::cout << "Angle After: " << angleDiff;
+
+	bool playerFacing = (angleDiff <= 90 && angleDiff >= -90);
+	
+	if (playerFacing) {
+		return;
+	}
+	else {
 		float newSoundVolume = getSoundVolume() * 0.7;
 		playSound(sound, newSoundVolume);
+	}
+	*/
+	if (playerPos.z > soundPos.z && playerPos.x > soundPos.x) {
+		if ((playerRotation >= 135 && playerRotation <= 315) && !(soundRotation > 135 && soundRotation < 315)) {
+			return;
+		}
+		else {
+			float newSoundVolume = getSoundVolume() * 0.7;
+			Mix_VolumeChunk(sound, newSoundVolume);
+		}
+	}
+	else if (playerPos.z > soundPos.z && playerPos.x < soundPos.x) {
+		if ((playerRotation >= 45 && playerRotation <= 225) && !(soundRotation > 45 && soundRotation < 225)) {
+			return;
+		}
+		else {
+			float newSoundVolume = getSoundVolume() * 0.7;
+			Mix_VolumeChunk(sound, newSoundVolume);
+		}
+	}
+	else if (playerPos.z < soundPos.z && playerPos.x > soundPos.x) {
+		if ((soundRotation >= 135 && soundRotation <= 315) && !(playerRotation > 135 && playerRotation < 315)) {
+			return;
+		}
+		else {
+			float newSoundVolume = getSoundVolume() * 0.7;
+			Mix_VolumeChunk(sound, newSoundVolume);
+		}
+	}
+	else if (playerPos.z < soundPos.z && playerPos.x < soundPos.x) {
+		if ((soundRotation >= 45 && soundRotation <= 225) && !(playerRotation > 45 && playerRotation < 225)) {
+			return;
+		}
+		else {
+			float newSoundVolume = getSoundVolume() * 0.7;
+			Mix_VolumeChunk(sound, newSoundVolume);
+		}
 	}
 }
 
@@ -175,16 +227,14 @@ void AudioEngine::fadeIn(Mix_Chunk* sound, float fadeTimeStart, float fadeTimeEn
 
 AudioElement::AudioElement() {
 	sound = NULL;
-	soundPosition = Vector3f(0,0,0);
 	channel = -1;
 	fadeTimeStart = 0;
 	fadeTimeEnd = 0;
 	groupTag = "";
 }
 
-AudioElement::AudioElement(Mix_Chunk* passedSound, Vector3f passedSoundPosition, int passedChannel) {
+AudioElement::AudioElement(Mix_Chunk* passedSound, int passedChannel) {
 	sound = passedSound;
-	soundPosition = passedSoundPosition;
 	channel = passedChannel;
 	groupTag = "";
 	fadeTimeStart = false;
@@ -199,10 +249,6 @@ void AudioElement::startFadingOut(float passedFadeTime) {
 
 void AudioElement::setSound(Mix_Chunk* passedSound) {
 	sound = passedSound;
-}
-
-void AudioElement::setSoundPosition(Vector3f passedSoundPosition) {
-	soundPosition = passedSoundPosition;
 }
 
 void AudioElement::setChannel(int passedChannel) {
@@ -225,10 +271,6 @@ Mix_Chunk* AudioElement::getSound() {
 	return sound;
 }
 
-Vector3f AudioElement::getSoundPosition() {
-	return soundPosition;
-}
-
 int AudioElement::getChannel() {
 	return channel;
 }
@@ -243,4 +285,46 @@ float AudioElement::getFadeTimeEnd() {
 
 std::string AudioElement::getGroupTag() {
 	return groupTag;
+}
+
+AudioElement3D::AudioElement3D(Mix_Chunk* passedSound, Vector3f passedSoundPosition, int passedChannel) {
+	sound = passedSound;
+	soundPosition3D = passedSoundPosition;
+	channel = passedChannel;
+	groupTag = "";
+	fadeTimeStart = false;
+	fadeTimeEnd = 0;
+}
+
+void AudioElement3D::setSoundPosition3D(Vector3f passedSoundPosition) {
+	soundPosition3D = passedSoundPosition;
+}
+
+void AudioElement3D::setSoundRotation(int passedSoundRotation) {
+	soundRotation = passedSoundRotation;
+}
+
+Vector3f AudioElement3D::getSoundPosition3D() {
+	return soundPosition3D;
+}
+
+int AudioElement3D::getSoundRotation() {
+	return soundRotation;
+}
+
+AudioElement2D::AudioElement2D(Mix_Chunk* passedSound, Vector2f passedSoundPosition, int passedChannel) {
+	sound = passedSound;
+	soundPosition2D = passedSoundPosition;
+	channel = passedChannel;
+	groupTag = "";
+	fadeTimeStart = false;
+	fadeTimeEnd = 0;
+}
+
+void AudioElement2D::setSoundPosition2D(Vector2f passedSoundPosition) {
+	soundPosition2D = passedSoundPosition;
+}
+
+Vector2f AudioElement2D::getSoundPosition2D() {
+	return soundPosition2D;
 }

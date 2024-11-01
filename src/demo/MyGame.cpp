@@ -23,9 +23,11 @@ MyGame::MyGame() : AbstractGame(), score(0), lives(3), numKeys(5), gameWon(false
 	//Mix_Chunk* soundTwo = ResourceManager::loadSound("res/audio/jump.wav");
 	Mix_Chunk* soundThree = ResourceManager::loadSound("res/audio/background_Music.wav");
 	//Mix_Music* background_music = ResourceManager::loadMP3("res/audio/DDLoop1.wav");
-	shootSound = new AudioElement(soundOne, Vector3f(0, 0, 2), -1);
+	shootSound = new AudioElement3D(soundOne, Vector3f(0, 0, 2), -1);
 	//jumpSound = new AudioElement(soundTwo, Vector3f(0, 0, 0), -1);
-	backgroundSound = new AudioElement(soundThree, Vector3f(0, 0, 0), 3);
+	backgroundSound = new AudioElement3D(soundThree, Vector3f(0, 0, 0), 3);
+
+	sfx->calculateBehindSound(shootSound->getSound(), Vector3f(1, 0, 1), shootSound->getSoundPosition3D(), 90, 0);
 
 	//sfx->calculateDistanceEffect(shootSound->getSound(), cube, shootSound->getSoundPosition());
 	//sfx->playMP3(background_music, -1);
