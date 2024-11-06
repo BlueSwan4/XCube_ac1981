@@ -77,9 +77,10 @@ class AudioEngine {
 		* @param sound - the sound to play
 		* @param playerPos - the Vector3 position of the player
 		* @param soundPos - the Vector3 position of the sound
+		* @param maxDistance - the int value of the maximum distance you can hear the sound from
 		*
 		*/
-		void calculateDistanceEffect(Mix_Chunk* sound, Vector3f playerPos, Vector3f soundPos);
+		void calculateDistanceEffect(Mix_Chunk* sound, Vector3f playerPos, Vector3f soundPos, float maxDisatance);
 
 		/**
 		* calculate how distance effects volume of sound in 2D (Inverse Square Law)
@@ -89,7 +90,7 @@ class AudioEngine {
 		* @param soundPos - the Vector2 position of the sound
 		*
 		*/
-		void calculateDistanceEffect(Mix_Chunk* sound, Vector2f playerPos, Vector2f soundPos);
+		void calculateDistanceEffect(Mix_Chunk* sound, Vector2f playerPos, Vector2f soundPos, float maxDistance);
 
 		/**
 		* Change the volume if the sound is behind the player
@@ -99,9 +100,12 @@ class AudioEngine {
 		* @param soundPos - position of the sound
 		* @param playerRotation - rotation of the player
 		* @param soundRotation - rotation of the sound
+		* @param soundAngleDetect - the angle to which the player can see
+		* @param soundAngleDetect - the angle to which the audio source can see
 		*
 		*/
-		void calculateBehindSound(Mix_Chunk* sound, Vector3f playerPos, Vector3f soundPos, int playerRotation, int soundRotation);
+		void calculateBehindSound(Mix_Chunk* sound, Vector3f playerPos, Vector3f soundPos, 
+			int playerRotation, int soundRotation, int playerSoundAngleDetect, int audioSoundAngleDetect);
 
 		/**
 		* Fade out sound chunk
@@ -155,6 +159,7 @@ protected:
 	float fadeTimeStart;
 	float fadeTimeEnd;
 	std::string groupTag;
+	float maxDistance;
 public:
 	// Constructor
 	AudioElement();
@@ -174,12 +179,14 @@ public:
 	void setFadeTimeStart(float passedFadeTimeStart);
 	void setFadeTimeEnd(float passedFadeTimeEnd);
 	void setGroupTag(std::string passedGroupTag);
+	void setMaxDistance(float passedMaxDistance);
 
 	Mix_Chunk* getSound();
 	int getChannel();
 	float getFadeTimeStart();
 	float getFadeTimeEnd();
 	std::string getGroupTag();
+	float getMaxDistance();
 };
 
 class AudioElement2D : public AudioElement{
@@ -187,7 +194,7 @@ private:
 	Vector2f soundPosition2D;
 public:
 	// Constructor
-	AudioElement2D(Mix_Chunk* passedSound, Vector2f passedSoundPosition, int passedChannel);
+	AudioElement2D(Mix_Chunk* passedSound, Vector2f passedSoundPosition, int passedChannel, float passedMaxDistance);
 
 	// Getters and Setters
 	void setSoundPosition2D(Vector2f passedSoundPosition);
@@ -200,7 +207,7 @@ private:
 	int soundRotation;
 public:
 	// Constructor
-	AudioElement3D(Mix_Chunk* passedSound, Vector3f passedSoundPosition, int passedChannel);
+	AudioElement3D(Mix_Chunk* passedSound, Vector3f passedSoundPosition, int passedChannel, float passedMaxDistance);
 
 	// Getters and Setters
 	void setSoundPosition3D(Vector3f passedSoundPosition);

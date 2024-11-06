@@ -23,12 +23,11 @@ MyGame::MyGame() : AbstractGame(), score(0), lives(3), numKeys(5), gameWon(false
 	//Mix_Chunk* soundTwo = ResourceManager::loadSound("res/audio/jump.wav");
 	Mix_Chunk* soundThree = ResourceManager::loadSound("res/audio/background_Music.wav");
 	//Mix_Music* background_music = ResourceManager::loadMP3("res/audio/DDLoop1.wav");
-	shootSound = new AudioElement3D(soundOne, Vector3f(0, 0, 2), -1);
+	shootSound = new AudioElement3D(soundOne, Vector3f(100, 0, 100), -1, 1000);
 	//jumpSound = new AudioElement(soundTwo, Vector3f(0, 0, 0), -1);
-	backgroundSound = new AudioElement3D(soundThree, Vector3f(0, 0, 0), 3);
+	backgroundSound = new AudioElement3D(soundThree, Vector3f(100, 0, 100), 3, 128);
 
-	sfx->calculateBehindSound(shootSound->getSound(), Vector3f(1, 0, 1), shootSound->getSoundPosition3D(), 90, 0);
-
+	sfx->calculateBehindSound(shootSound->getSound(), cube, shootSound->getSoundPosition3D(), 45, 235);
 	//sfx->calculateDistanceEffect(shootSound->getSound(), cube, shootSound->getSoundPosition());
 	//sfx->playMP3(background_music, -1);
 
@@ -73,10 +72,10 @@ void MyGame::handleKeyEvents() {
 		velocity.z = -speed;
 	}
 	if (eventSystem->isPressed(Key::SPACE)) {
-		backgroundSound->startFadingOut(5000);
+		sfx->playSoundChannel(shootSound->getSound(), shootSound->getChannel());
 	}
 	if (eventSystem->isPressed(Key::LEFT)) {
-		sfx->playSound(backgroundSound->getSound());
+		sfx->calculateDistanceEffect(shootSound->getSound(), cube, shootSound->getSoundPosition3D(), shootSound->getMaxDistance());
 	}
 }
 

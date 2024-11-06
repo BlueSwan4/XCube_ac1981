@@ -34,7 +34,6 @@ void AudioEngine::playSound(Mix_Chunk * sound, const int & _volume) {
 
 void AudioEngine::playSoundChannel(Mix_Chunk* sound, int channel) {
 	if (soundOn) {
-		Mix_VolumeChunk(sound, volume);
 		Mix_PlayChannel(channel, sound, 0);
 	}
 }
@@ -99,34 +98,156 @@ void AudioEngine::playSoundPanning(Mix_Chunk* sound, float xPosPlayer, float xPo
 	Mix_PlayChannel(1, sound, 0);
 }
 
-void AudioEngine::calculateDistanceEffect(Mix_Chunk* sound, Vector3f playerPos, Vector3f soundPos) {
+void AudioEngine::calculateDistanceEffect(Mix_Chunk* sound, Vector3f playerPos, Vector3f soundPos, float maxDistance) {
 	float distanceSound = sqrt(pow(playerPos.x - soundPos.x, 2) + pow(playerPos.y - soundPos.y, 2) + pow(playerPos.z - soundPos.z, 2));
-	// Could replace 1 with the power of sound at some point to be more accurate
-	float newSoundVolume = (1 / pow(distanceSound, 2) * MIX_MAX_VOLUME);
-	if (newSoundVolume < 1) {
+	float percentage = 1 - (distanceSound / maxDistance);
+	std::cout << "Percentage : " << percentage << "\n";
+	float newSoundVolume;
+	if (percentage < 0) {
 		newSoundVolume = 0;
 	}
-	std::cout << "This is new Sound: " << newSoundVolume << "\n";
-	// Doesn't work if set sound, Why? Could be lack of mix_volume_chunk
-	//setSoundVolume(newSoundVolume);
-	setSoundVolume(newSoundVolume);
-	playSound(sound);
+	else {
+		if (percentage > 1) {
+			percentage = 1;
+		}
+		newSoundVolume = percentage * MIX_MAX_VOLUME;
+	}
+	std::cout << "Sound Volume : " << newSoundVolume << "\n";
+	Mix_VolumeChunk(sound, newSoundVolume);
 }
 
-void AudioEngine::calculateDistanceEffect(Mix_Chunk* sound, Vector2f playerPos, Vector2f soundPos) {
+void AudioEngine::calculateDistanceEffect(Mix_Chunk* sound, Vector2f playerPos, Vector2f soundPos, float maxDistance) {
 	float distanceSound = sqrt(pow(playerPos.x - soundPos.x, 2) + pow(playerPos.y - soundPos.y, 2));
-	// Could replace 1 with the power of sound at some point to be more accurate
-	float newSoundVolume = (1 / pow(distanceSound, 2) * MIX_MAX_VOLUME);
-	if (newSoundVolume < 1) {
+	float percentage = 1 - (distanceSound / maxDistance);
+	float newSoundVolume;
+	if (percentage < 0) {
 		newSoundVolume = 0;
 	}
-	std::cout << "This is new Sound: " << newSoundVolume << "\n";
-	// Doesn't work if set sound, Why? Could be lack of mix_volume_chunk
-	setSoundVolume(newSoundVolume);
-	playSound(sound);
+	else {
+		if (percentage > 1) {
+			percentage = 1;
+		}
+		newSoundVolume = percentage * MIX_MAX_VOLUME;
+	}
+	Mix_VolumeChunk(sound, newSoundVolume);
 }
 
-void AudioEngine::calculateBehindSound(Mix_Chunk* sound, Vector3f playerPos, Vector3f soundPos, int playerRotation, int soundRotation) {
+void AudioEngine::calculateBehindSound(Mix_Chunk* sound, Vector3f playerPos, Vector3f soundPos, int playerRotation, 
+	int soundRotation, int playerSoundDetectAngle, int audioSoundDetectAngle) {
+	bool playerFacing = false;
+	bool soundFacing = false;
+	
+	float targetAnglePlayer = 0;
+	float targetAngleSound = 0;
+	float upperTargetPlayer = 0;
+	float lowerTargetPlayer = 0;
+	float upperTargetSound = 0;
+	float lowerTargetSound = 0;
+	float checker = 0;
+
+	float zDistance = fabsf(soundPos.z - playerPos.z);
+	float xDistance = fabsf(soundPos.x - playerPos.x);
+	float angleRad = atan(zDistance / xDistance);
+	int angleDeg = angleRad * 180 / M_PI;
+
+	if (playerPos.z > soundPos.z && playerPos.x > soundPos.x) {
+		targetAnglePlayer = 270 - angleDeg;
+		targetAngleSound = angleDeg;
+		upperTargetPlayer = targetAnglePlayer + playerSoundDetectAngle;
+		lowerTargetPlayer = targetAnglePlayer - playerSoundDetectAngle;
+		checker = targetAngleSound - audioSoundDetectAngle;
+		upperTargetSound = targetAngleSound + audioSoundDetectAngle;
+		lowerTargetSound;
+		if (checker < 0) {
+			lowerTargetSound = 360 + checker;
+			if (soundRotation >= lowerTargetSound || soundRotation <= upperTargetSound) {
+				soundFacing = true;
+			}
+		}
+		else {
+			if (soundRotation >= lowerTargetSound && soundRotation <= upperTargetSound) {
+				soundFacing = true;
+			}
+		}
+		if (playerRotation >= lowerTargetPlayer && playerRotation <= upperTargetPlayer) {
+			playerFacing = true;
+		}
+	}
+	else if (playerPos.z > soundPos.z && playerPos.x < soundPos.x) {
+		targetAnglePlayer = 90 + angleDeg;
+		targetAngleSound = 360 - angleDeg;
+		upperTargetPlayer = targetAnglePlayer + playerSoundDetectAngle;
+		lowerTargetPlayer = targetAnglePlayer - playerSoundDetectAngle;
+		checker = targetAngleSound + audioSoundDetectAngle;
+		lowerTargetSound = targetAngleSound - audioSoundDetectAngle;
+		upperTargetSound;
+		if (checker > 360) {
+			upperTargetSound = checker - 360;
+			if (soundRotation >= lowerTargetSound || soundRotation <= upperTargetSound) {
+				soundFacing = true;
+			}
+		}
+		else {
+			if (soundRotation >= lowerTargetSound && soundRotation <= upperTargetSound) {
+				soundFacing = true;
+			}
+		}
+		if (playerRotation >= lowerTargetPlayer && playerRotation <= upperTargetPlayer) {
+			playerFacing = true;
+		}
+	}
+	else if (playerPos.z < soundPos.z && playerPos.x > soundPos.x) {
+		targetAnglePlayer = 270 + angleDeg;
+		targetAngleSound = 180 - angleDeg;
+		upperTargetSound = targetAngleSound + audioSoundDetectAngle;
+		checker = targetAnglePlayer + playerSoundDetectAngle;
+		lowerTargetSound = targetAngleSound - audioSoundDetectAngle;
+		lowerTargetPlayer = targetAnglePlayer - playerSoundDetectAngle;
+		upperTargetPlayer;
+		if (checker > 360) {
+			upperTargetPlayer = checker - 360;
+			if (playerRotation >= lowerTargetPlayer || playerRotation <= upperTargetPlayer) {
+				playerFacing = true;
+			}
+		}
+		else {
+			if (playerRotation >= lowerTargetPlayer && playerRotation <= upperTargetPlayer) {
+				playerFacing = true;
+			}
+		}
+		if (soundRotation >= lowerTargetSound && soundRotation <= upperTargetSound) {
+			soundFacing = true;
+		}
+	}
+	else if (playerPos.z < soundPos.z && playerPos.x < soundPos.x) {
+		targetAnglePlayer = 90 - angleDeg;
+		targetAngleSound = 180 + angleDeg;
+		upperTargetSound = targetAngleSound + audioSoundDetectAngle;
+		upperTargetPlayer = targetAnglePlayer + playerSoundDetectAngle;
+		checker = targetAnglePlayer - playerSoundDetectAngle;
+		lowerTargetSound = targetAngleSound - audioSoundDetectAngle;
+		lowerTargetPlayer;
+		if (checker < 0) {
+			lowerTargetPlayer = 360 + checker;
+			if (playerRotation >= lowerTargetPlayer || playerRotation <= upperTargetPlayer) {
+				playerFacing = true;
+			}
+		}
+		else {
+			if (playerRotation >= lowerTargetPlayer && playerRotation <= upperTargetPlayer) {
+				playerFacing = true;
+			}
+		}
+		if (soundRotation >= lowerTargetSound && soundRotation <= upperTargetSound) {
+			soundFacing = true;
+		}
+	}
+
+	if (playerFacing && soundFacing) {
+		float newSoundVolume = getSoundVolume() * 0.7;
+		Mix_VolumeChunk(sound, newSoundVolume);
+	}
+
 	/*
 	int anglePlayerToSoundRad = acos(((playerPos.x * soundPos.z) + (playerPos.z + soundPos.x) /
 		((sqrt(pow(playerPos.x, 2) + pow(playerPos.z, 2) * sqrt(pow(soundPos.x, 2) + pow(soundPos.z, 2)))))));
@@ -138,7 +259,7 @@ void AudioEngine::calculateBehindSound(Mix_Chunk* sound, Vector3f playerPos, Vec
 	std::cout << "Angle After: " << angleDiff;
 
 	bool playerFacing = (angleDiff <= 90 && angleDiff >= -90);
-	
+
 	if (playerFacing) {
 		return;
 	}
@@ -147,46 +268,9 @@ void AudioEngine::calculateBehindSound(Mix_Chunk* sound, Vector3f playerPos, Vec
 		playSound(sound, newSoundVolume);
 	}
 	*/
-	if (playerPos.z > soundPos.z && playerPos.x > soundPos.x) {
-		if ((playerRotation >= 135 && playerRotation <= 315) && !(soundRotation > 135 && soundRotation < 315)) {
-			return;
-		}
-		else {
-			float newSoundVolume = getSoundVolume() * 0.7;
-			Mix_VolumeChunk(sound, newSoundVolume);
-		}
-	}
-	else if (playerPos.z > soundPos.z && playerPos.x < soundPos.x) {
-		if ((playerRotation >= 45 && playerRotation <= 225) && !(soundRotation > 45 && soundRotation < 225)) {
-			return;
-		}
-		else {
-			float newSoundVolume = getSoundVolume() * 0.7;
-			Mix_VolumeChunk(sound, newSoundVolume);
-		}
-	}
-	else if (playerPos.z < soundPos.z && playerPos.x > soundPos.x) {
-		if ((soundRotation >= 135 && soundRotation <= 315) && !(playerRotation > 135 && playerRotation < 315)) {
-			return;
-		}
-		else {
-			float newSoundVolume = getSoundVolume() * 0.7;
-			Mix_VolumeChunk(sound, newSoundVolume);
-		}
-	}
-	else if (playerPos.z < soundPos.z && playerPos.x < soundPos.x) {
-		if ((soundRotation >= 45 && soundRotation <= 225) && !(playerRotation > 45 && playerRotation < 225)) {
-			return;
-		}
-		else {
-			float newSoundVolume = getSoundVolume() * 0.7;
-			Mix_VolumeChunk(sound, newSoundVolume);
-		}
-	}
 }
 
 void AudioEngine::fadeOut(Mix_Chunk* sound, float fadeTimeStart, float fadeTimeEnd) {
-	// Got to get from max volume to 0
 	if (fadeTimeEnd > SDL_GetTicks()) {
 		float totalTime = fadeTimeEnd - fadeTimeStart;
 		float timeLeft = fadeTimeEnd - SDL_GetTicks();
@@ -196,7 +280,6 @@ void AudioEngine::fadeOut(Mix_Chunk* sound, float fadeTimeStart, float fadeTimeE
 }
 
 void AudioEngine::fadeOut(Mix_Chunk* sound, float fadeTimeStart, float fadeTimeEnd, float (*func)(float)) {
-	// Got to get from max volume to 0
 	if (fadeTimeEnd > SDL_GetTicks()) {
 		float totalTime = fadeTimeEnd - fadeTimeStart;
 		float timeLeft = fadeTimeEnd - SDL_GetTicks();
@@ -206,7 +289,6 @@ void AudioEngine::fadeOut(Mix_Chunk* sound, float fadeTimeStart, float fadeTimeE
 }
 
 void AudioEngine::fadeIn(Mix_Chunk* sound, float fadeTimeStart, float fadeTimeEnd) {
-	// Got to get from max volume to 0
 	if (fadeTimeEnd > SDL_GetTicks()) {
 		float totalTime = fadeTimeEnd - fadeTimeStart;
 		float timeLeft = fadeTimeEnd - SDL_GetTicks();
@@ -216,7 +298,6 @@ void AudioEngine::fadeIn(Mix_Chunk* sound, float fadeTimeStart, float fadeTimeEn
 }
 
 void AudioEngine::fadeIn(Mix_Chunk* sound, float fadeTimeStart, float fadeTimeEnd, float (*func)(float)) {
-	// Got to get from max volume to 0
 	if (fadeTimeEnd > SDL_GetTicks()) {
 		float totalTime = fadeTimeEnd - fadeTimeStart;
 		float timeLeft = fadeTimeEnd - SDL_GetTicks();
@@ -231,6 +312,7 @@ AudioElement::AudioElement() {
 	fadeTimeStart = 0;
 	fadeTimeEnd = 0;
 	groupTag = "";
+	maxDistance = 0;
 }
 
 AudioElement::AudioElement(Mix_Chunk* passedSound, int passedChannel) {
@@ -267,6 +349,10 @@ void AudioElement::setGroupTag(std::string passedGroupTag) {
 	groupTag = passedGroupTag;
 }
 
+void AudioElement::setMaxDistance(float passedMaxDistance) {
+	maxDistance = passedMaxDistance;
+}
+
 Mix_Chunk* AudioElement::getSound() {
 	return sound;
 }
@@ -287,10 +373,15 @@ std::string AudioElement::getGroupTag() {
 	return groupTag;
 }
 
-AudioElement3D::AudioElement3D(Mix_Chunk* passedSound, Vector3f passedSoundPosition, int passedChannel) {
+float AudioElement::getMaxDistance() {
+	return maxDistance;
+}
+
+AudioElement3D::AudioElement3D(Mix_Chunk* passedSound, Vector3f passedSoundPosition, int passedChannel, float passedMaxDistance) {
 	sound = passedSound;
 	soundPosition3D = passedSoundPosition;
 	channel = passedChannel;
+	maxDistance = passedMaxDistance;
 	groupTag = "";
 	fadeTimeStart = false;
 	fadeTimeEnd = 0;
@@ -312,10 +403,11 @@ int AudioElement3D::getSoundRotation() {
 	return soundRotation;
 }
 
-AudioElement2D::AudioElement2D(Mix_Chunk* passedSound, Vector2f passedSoundPosition, int passedChannel) {
+AudioElement2D::AudioElement2D(Mix_Chunk* passedSound, Vector2f passedSoundPosition, int passedChannel, float passedMaxDistance) {
 	sound = passedSound;
 	soundPosition2D = passedSoundPosition;
 	channel = passedChannel;
+	maxDistance = passedMaxDistance;
 	groupTag = "";
 	fadeTimeStart = false;
 	fadeTimeEnd = 0;
