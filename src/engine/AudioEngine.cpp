@@ -56,9 +56,57 @@ void AudioEngine::emptyChunk(Mix_Chunk* sound) {
 	Mix_FreeChunk(sound);
 }
 
-void AudioEngine::playSoundPanning(Mix_Chunk* sound, float xPosPlayer, float xPosSound) {
+void AudioEngine::playSoundPanning(Mix_Chunk* sound, Vector3f playerPos, Vector3f soundPos, int playerRotation) {
+
+	float targetAnglePlayer = 0;
+	float relativeRotation;
+	float panPosition = -1;
+
+	float zDistance = fabsf(soundPos.z - playerPos.z);
+	float xDistance = fabsf(soundPos.x - playerPos.x);
+	float angleRad = atan(zDistance / xDistance);
+	int angleDeg = angleRad * 180 / M_PI;
+	std::cout << "Angle: " << angleDeg;
+
+	if (playerPos.z > soundPos.z && playerPos.x > soundPos.x) {
+		targetAnglePlayer = 270 - angleDeg;
+	}
+	else if (playerPos.z > soundPos.z && playerPos.x < soundPos.x) {
+		targetAnglePlayer = 90 + angleDeg;
+	}
+	else if (playerPos.z < soundPos.z && playerPos.x > soundPos.x) {
+		targetAnglePlayer = 270 + angleDeg;
+	}
+	else if (playerPos.z < soundPos.z && playerPos.x < soundPos.x) {
+		targetAnglePlayer = 90 - angleDeg;
+	}
+	relativeRotation = playerRotation - targetAnglePlayer;
+
+	if (relativeRotation < 0) {
+		relativeRotation = 360 + relativeRotation;
+	}
+	std::cout << "Angle: " << relativeRotation;
+	if (relativeRotation >= 0 && relativeRotation < 90) {
+		panPosition = relativeRotation / 90;
+		panPosition = -panPosition;
+	}
+	else if (relativeRotation >= 90 && relativeRotation <= 270) {
+		relativeRotation -= 180;
+		panPosition = relativeRotation / 90;
+	}
+	else if (relativeRotation > 270 && relativeRotation <= 360) {
+		relativeRotation -= 90;
+		panPosition = relativeRotation / 90;
+	}
+
+	float p = ((M_PI * (panPosition + 1)) / 4);
+	int leftSound = cos(p) * 255;
+	int rightSound = sin(p) * 255;
+	Mix_SetPanning(1, leftSound, rightSound);
+
+	/**
 	// Assuming sound source is at x position 400 (Change later)
-	float panPosition = NULL;
+	float panPosition;
 	float panDistance = 400;
 	float relativeXPosPlayer = xPosPlayer - xPosSound;
 	std::cout << "Player Position: " << relativeXPosPlayer << "\n";
@@ -95,10 +143,11 @@ void AudioEngine::playSoundPanning(Mix_Chunk* sound, float xPosPlayer, float xPo
 	int leftSound = cos(p) * 255;
 	int rightSound = sin(p) * 255;
 	Mix_SetPanning(1, leftSound, rightSound);
-	Mix_PlayChannel(1, sound, 0);
+	//Mix_PlayChannel(1, sound, 0);
+	*/
 }
 
-void AudioEngine::calculateDistanceEffect(Mix_Chunk* sound, Vector3f playerPos, Vector3f soundPos, float maxDistance) {
+void AudioEngine::calculateDistanceEffect3D(Mix_Chunk* sound, Vector3f playerPos, Vector3f soundPos, float maxDistance, int currentVolume) {
 	float distanceSound = sqrt(pow(playerPos.x - soundPos.x, 2) + pow(playerPos.y - soundPos.y, 2) + pow(playerPos.z - soundPos.z, 2));
 	float percentage = 1 - (distanceSound / maxDistance);
 	std::cout << "Percentage : " << percentage << "\n";
@@ -110,13 +159,13 @@ void AudioEngine::calculateDistanceEffect(Mix_Chunk* sound, Vector3f playerPos, 
 		if (percentage > 1) {
 			percentage = 1;
 		}
-		newSoundVolume = percentage * MIX_MAX_VOLUME;
+		newSoundVolume = percentage * currentVolume;
 	}
 	std::cout << "Sound Volume : " << newSoundVolume << "\n";
 	Mix_VolumeChunk(sound, newSoundVolume);
 }
 
-void AudioEngine::calculateDistanceEffect(Mix_Chunk* sound, Vector2f playerPos, Vector2f soundPos, float maxDistance) {
+void AudioEngine::calculateDistanceEffect2D(Mix_Chunk* sound, Vector2f playerPos, Vector2f soundPos, float maxDistance, int currentVolume) {
 	float distanceSound = sqrt(pow(playerPos.x - soundPos.x, 2) + pow(playerPos.y - soundPos.y, 2));
 	float percentage = 1 - (distanceSound / maxDistance);
 	float newSoundVolume;
@@ -243,6 +292,7 @@ void AudioEngine::calculateBehindSound(Mix_Chunk* sound, Vector3f playerPos, Vec
 		}
 	}
 
+	// WRONG WRONG WRONG WRONG FIX FIX FIX FIX, only one needs to be true
 	if (playerFacing && soundFacing) {
 		float newSoundVolume = getSoundVolume() * 0.7;
 		Mix_VolumeChunk(sound, newSoundVolume);
@@ -270,38 +320,38 @@ void AudioEngine::calculateBehindSound(Mix_Chunk* sound, Vector3f playerPos, Vec
 	*/
 }
 
-void AudioEngine::fadeOut(Mix_Chunk* sound, float fadeTimeStart, float fadeTimeEnd) {
+void AudioEngine::fadeOut(Mix_Chunk* sound, float fadeTimeStart, float fadeTimeEnd, int currentVolume) {
 	if (fadeTimeEnd > SDL_GetTicks()) {
 		float totalTime = fadeTimeEnd - fadeTimeStart;
 		float timeLeft = fadeTimeEnd - SDL_GetTicks();
-		float newVolume = (timeLeft / totalTime) * 128;
+		float newVolume = (timeLeft / totalTime) * currentVolume;
 		Mix_VolumeChunk(sound, newVolume);
 	}
 }
 
-void AudioEngine::fadeOut(Mix_Chunk* sound, float fadeTimeStart, float fadeTimeEnd, float (*func)(float)) {
+void AudioEngine::fadeOut(Mix_Chunk* sound, float fadeTimeStart, float fadeTimeEnd, int currentVolume, float (*func)(float)) {
 	if (fadeTimeEnd > SDL_GetTicks()) {
 		float totalTime = fadeTimeEnd - fadeTimeStart;
 		float timeLeft = fadeTimeEnd - SDL_GetTicks();
-		float newVolume = func((timeLeft / totalTime) * 128);
+		float newVolume = func((timeLeft / totalTime) * currentVolume);
 		Mix_VolumeChunk(sound, newVolume);
 	}
 }
 
-void AudioEngine::fadeIn(Mix_Chunk* sound, float fadeTimeStart, float fadeTimeEnd) {
+void AudioEngine::fadeIn(Mix_Chunk* sound, float fadeTimeStart, float fadeTimeEnd, int currentVolume) {
 	if (fadeTimeEnd > SDL_GetTicks()) {
 		float totalTime = fadeTimeEnd - fadeTimeStart;
 		float timeLeft = fadeTimeEnd - SDL_GetTicks();
-		float newVolume = ((totalTime - timeLeft) / totalTime) * 128;
+		float newVolume = ((totalTime - timeLeft) / totalTime) * currentVolume;
 		Mix_VolumeChunk(sound, newVolume);
 	}
 }
 
-void AudioEngine::fadeIn(Mix_Chunk* sound, float fadeTimeStart, float fadeTimeEnd, float (*func)(float)) {
+void AudioEngine::fadeIn(Mix_Chunk* sound, float fadeTimeStart, float fadeTimeEnd, int currentVolume, float (*func)(float)) {
 	if (fadeTimeEnd > SDL_GetTicks()) {
 		float totalTime = fadeTimeEnd - fadeTimeStart;
 		float timeLeft = fadeTimeEnd - SDL_GetTicks();
-		float newVolume = func(((totalTime - timeLeft) / totalTime) * 128);
+		float newVolume = func(((totalTime - timeLeft) / totalTime) * currentVolume);
 		Mix_VolumeChunk(sound, newVolume);
 	}
 }
@@ -377,14 +427,21 @@ float AudioElement::getMaxDistance() {
 	return maxDistance;
 }
 
-AudioElement3D::AudioElement3D(Mix_Chunk* passedSound, Vector3f passedSoundPosition, int passedChannel, float passedMaxDistance) {
+int AudioElement::getChunkVolume() {
+	return Mix_VolumeChunk(sound, -1);
+}
+
+AudioElement3D::AudioElement3D(Mix_Chunk* passedSound, Vector3f passedSoundPosition, int passedChannel,
+	float passedMaxDistance, int passedDetectArc, int passedSoundRotation) {
 	sound = passedSound;
 	soundPosition3D = passedSoundPosition;
+	soundRotation = passedSoundRotation;
 	channel = passedChannel;
 	maxDistance = passedMaxDistance;
 	groupTag = "";
 	fadeTimeStart = false;
 	fadeTimeEnd = 0;
+	setDetectArc(passedDetectArc);
 }
 
 void AudioElement3D::setSoundPosition3D(Vector3f passedSoundPosition) {
@@ -395,12 +452,28 @@ void AudioElement3D::setSoundRotation(int passedSoundRotation) {
 	soundRotation = passedSoundRotation;
 }
 
+void AudioElement3D::setDetectArc(int passedDetectArc) {
+	if (passedDetectArc > 90) {
+		detectArc = 90;
+	}
+	else if (passedDetectArc < 0) {
+		detectArc = 0;
+	}
+	else {
+		detectArc = passedDetectArc;
+	}
+}
+
 Vector3f AudioElement3D::getSoundPosition3D() {
 	return soundPosition3D;
 }
 
 int AudioElement3D::getSoundRotation() {
 	return soundRotation;
+}
+
+int AudioElement3D::getDetectArc() {
+	return detectArc;
 }
 
 AudioElement2D::AudioElement2D(Mix_Chunk* passedSound, Vector2f passedSoundPosition, int passedChannel, float passedMaxDistance) {

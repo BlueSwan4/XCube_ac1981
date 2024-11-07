@@ -23,11 +23,13 @@ MyGame::MyGame() : AbstractGame(), score(0), lives(3), numKeys(5), gameWon(false
 	//Mix_Chunk* soundTwo = ResourceManager::loadSound("res/audio/jump.wav");
 	Mix_Chunk* soundThree = ResourceManager::loadSound("res/audio/background_Music.wav");
 	//Mix_Music* background_music = ResourceManager::loadMP3("res/audio/DDLoop1.wav");
-	shootSound = new AudioElement3D(soundOne, Vector3f(100, 0, 100), -1, 1000);
+	shootSound = new AudioElement3D(soundOne, Vector3f(10, 0, 2), -1, 1000, 90, 0);
 	//jumpSound = new AudioElement(soundTwo, Vector3f(0, 0, 0), -1);
-	backgroundSound = new AudioElement3D(soundThree, Vector3f(100, 0, 100), 3, 128);
+	backgroundSound = new AudioElement3D(soundThree, Vector3f(0, 0, 0), 3, 128, 90, 0);
 
-	sfx->calculateBehindSound(shootSound->getSound(), cube, shootSound->getSoundPosition3D(), 45, 235);
+	sfx->playSoundPanning(shootSound->getSound(), cube, shootSound->getSoundPosition3D(), 0);
+	Mix_PlayChannel(1, shootSound->getSound(), 0);
+	//sfx->calculateBehindSound(shootSound->getSound(), cube, shootSound->getSoundPosition3D(), 45, 235, 90, 90);
 	//sfx->calculateDistanceEffect(shootSound->getSound(), cube, shootSound->getSoundPosition());
 	//sfx->playMP3(background_music, -1);
 
@@ -72,10 +74,10 @@ void MyGame::handleKeyEvents() {
 		velocity.z = -speed;
 	}
 	if (eventSystem->isPressed(Key::SPACE)) {
-		sfx->playSoundChannel(shootSound->getSound(), shootSound->getChannel());
+		sfx->playSoundPanning(shootSound->getSound(), cube, shootSound->getSoundPosition3D(), 90);
 	}
 	if (eventSystem->isPressed(Key::LEFT)) {
-		sfx->calculateDistanceEffect(shootSound->getSound(), cube, shootSound->getSoundPosition3D(), shootSound->getMaxDistance());
+		sfx->calculateDistanceEffect3D(shootSound->getSound(), cube, shootSound->getSoundPosition3D(), shootSound->getMaxDistance(), 128);
 	}
 }
 
@@ -120,7 +122,7 @@ void MyGame::update() {
 	}
 
 	// Audio Fading
-	sfx->fadeOut(backgroundSound->getSound(), backgroundSound->getFadeTimeStart(), backgroundSound->getFadeTimeEnd());
+	sfx->fadeOut(backgroundSound->getSound(), backgroundSound->getFadeTimeStart(), backgroundSound->getFadeTimeEnd(), 128);
 }
 
 void MyGame::render() {
