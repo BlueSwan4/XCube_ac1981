@@ -54,6 +54,20 @@ class AudioEngine {
 		void playMP3(Mix_Music * mp3, const int & times);
 
 		/**
+		* Plays mp3 file given amount of times
+		*
+		* @param channel - The channel to pause music on
+		*/
+		void pauseChannel(int channel);
+
+		/**
+		* Plays mp3 file given amount of times
+		*
+		* @param channel - The channel to resume music on
+		*/
+		void resumeChannel(int channel);
+
+		/**
 		* Frees audio chunks at the end of a session
 		*
 		* @param sound - the sound to play
@@ -69,7 +83,7 @@ class AudioEngine {
 		* @param xPosSound - the x axis position of the sound
 		* 
 		*/
-		void playSoundPanning(Mix_Chunk* sound, Vector3f playerPos, Vector3f soundPos, int playerRotation);
+		void soundPanning(Vector3f playerPos, Vector3f soundPos, int playerRotation, int affectedChannel);
 
 		/**
 		* calculate how distance effects volume of sound in 3D (Inverse Square Law)
@@ -96,19 +110,35 @@ class AudioEngine {
 		void calculateDistanceEffect2D(Mix_Chunk* sound, Vector2f playerPos, Vector2f soundPos, float maxDistance, int currentVolume);
 
 		/**
-		* Change the volume if the sound is behind the player
+		* Change the volume if the sound is behind the player (acting as sound being 360)
 		*
 		* @param sound - the sound to play
 		* @param playerPos - position of the player
 		* @param soundPos - position of the sound
 		* @param playerRotation - rotation of the player
 		* @param soundRotation - rotation of the sound
-		* @param soundAngleDetect - the angle to which the player can see
-		* @param soundAngleDetect - the angle to which the audio source can see
+		* @param playerSoundAngleDetect - the angle to which the player can hear (<90)
+		* @param currentVolume - the current volume of the passed sound
+		*
+		*/
+		void calculateBehindSound(Mix_Chunk* sound, Vector3f playerPos, Vector3f soundPos,
+			int playerRotation, int soundRotation, int playerSoundAngleDetect, int currentVolume);
+
+		/**
+		* Change the volume if the sound is behind the player (acting as sound has an arc)
+		*
+		* @param sound - the sound to play
+		* @param playerPos - position of the player
+		* @param soundPos - position of the sound
+		* @param playerRotation - rotation of the player
+		* @param soundRotation - rotation of the sound
+		* @param playerSoundAngleDetect - the angle to which the player can hear (<90)
+		* @param audioSoundAngleDetect - the angle to which the audio source can transmit (<90)
+		* @param currentVolume - the current volume of the passed sound
 		*
 		*/
 		void calculateBehindSound(Mix_Chunk* sound, Vector3f playerPos, Vector3f soundPos, 
-			int playerRotation, int soundRotation, int playerSoundAngleDetect, int audioSoundAngleDetect);
+			int playerRotation, int soundRotation, int playerSoundAngleDetect, int audioSoundAngleDetect, int currentVolume);
 
 		/**
 		* Fade out sound chunk
@@ -120,8 +150,8 @@ class AudioEngine {
 		* @param func - A function to chnagethe fading graph from linear to another funtion
 		*
 		*/
-		void fadeOut(Mix_Chunk* sound, float fadeTimeStart, float fadeTimeEnd, int currentVolume);
-		void fadeOut(Mix_Chunk* sound, float fadeTimeStart, float fadeTimeEnd, int currentVolume, float(*func)(float));
+		void fadeOut(Mix_Chunk* sound, int channel, float fadeTimeStart, float fadeTimeEnd, int currentVolume);
+		void fadeOut(Mix_Chunk* sound, int channel, float fadeTimeStart, float fadeTimeEnd, int currentVolume, float(*func)(float));
 
 		/**
 		* Fade in sound chunk
@@ -133,8 +163,8 @@ class AudioEngine {
 		* @param func - A function to chnagethe fading graph from linear to another funtion
 		*
 		*/
-		void fadeIn(Mix_Chunk* sound, float fadeTimeStart, float fadeTimeEnd, int currentVolume);
-		void fadeIn(Mix_Chunk* sound, float fadeTimeStart, float fadeTimeEnd, int currentVolume, float(*func)(float));
+		void fadeIn(Mix_Chunk* sound, int channel, float fadeTimeStart, float fadeTimeEnd, int currentVolume);
+		void fadeIn(Mix_Chunk* sound, int channel, float fadeTimeStart, float fadeTimeEnd, int currentVolume, float(*func)(float));
 
 		/**
 		* Assigns a channel to a group

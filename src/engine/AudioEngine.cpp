@@ -42,6 +42,14 @@ void AudioEngine::playMP3(Mix_Music * mp3, const int & times) {
 	Mix_PlayMusic(mp3, times);
 }
 
+void AudioEngine::pauseChannel(int channel) {
+	Mix_Pause(channel);
+}
+
+void AudioEngine::resumeChannel(int channel) {
+	Mix_Pause(channel);
+}
+
 void AudioEngine::groupChannel(int channel, std::string groupTag) {
 	int group = tags.at(groupTag);
 	Mix_GroupChannel(channel, group);
@@ -56,45 +64,45 @@ void AudioEngine::emptyChunk(Mix_Chunk* sound) {
 	Mix_FreeChunk(sound);
 }
 
-void AudioEngine::playSoundPanning(Mix_Chunk* sound, Vector3f playerPos, Vector3f soundPos, int playerRotation) {
+void AudioEngine::soundPanning(Vector3f playerPos, Vector3f soundPos, int playerRotation, int affectedChannel) {
+
+	if (soundPos.z == playerPos.z && soundPos.x == playerPos.x) {return;}
 
 	float targetAnglePlayer = 0;
 	float relativeRotation;
 	float panPosition = -1;
-
 	float zDistance = fabsf(soundPos.z - playerPos.z);
 	float xDistance = fabsf(soundPos.x - playerPos.x);
 	float angleRad = atan(zDistance / xDistance);
 	int angleDeg = angleRad * 180 / M_PI;
-	std::cout << "Angle: " << angleDeg;
 
-	if (playerPos.z > soundPos.z && playerPos.x > soundPos.x) {
+	if (soundPos.z == playerPos.z && soundPos.x == playerPos.x) {
+		return;
+	}
+
+	if (playerPos.z >= soundPos.z && playerPos.x >= soundPos.x) {
 		targetAnglePlayer = 270 - angleDeg;
-	}
-	else if (playerPos.z > soundPos.z && playerPos.x < soundPos.x) {
+	} else if (playerPos.z >= soundPos.z && playerPos.x <= soundPos.x) {
 		targetAnglePlayer = 90 + angleDeg;
-	}
-	else if (playerPos.z < soundPos.z && playerPos.x > soundPos.x) {
+	} else if (playerPos.z <= soundPos.z && playerPos.x >= soundPos.x) {
 		targetAnglePlayer = 270 + angleDeg;
-	}
-	else if (playerPos.z < soundPos.z && playerPos.x < soundPos.x) {
+	} else if (playerPos.z <= soundPos.z && playerPos.x <= soundPos.x) {
 		targetAnglePlayer = 90 - angleDeg;
 	}
 	relativeRotation = playerRotation - targetAnglePlayer;
+	std::cout << "Target Angle: " << targetAnglePlayer;
 
 	if (relativeRotation < 0) {
 		relativeRotation = 360 + relativeRotation;
 	}
-	std::cout << "Angle: " << relativeRotation;
+
 	if (relativeRotation >= 0 && relativeRotation < 90) {
 		panPosition = relativeRotation / 90;
 		panPosition = -panPosition;
-	}
-	else if (relativeRotation >= 90 && relativeRotation <= 270) {
+	} else if (relativeRotation >= 90 && relativeRotation <= 270) {
 		relativeRotation -= 180;
 		panPosition = relativeRotation / 90;
-	}
-	else if (relativeRotation > 270 && relativeRotation <= 360) {
+	} else if (relativeRotation > 270 && relativeRotation <= 360) {
 		relativeRotation -= 90;
 		panPosition = relativeRotation / 90;
 	}
@@ -102,49 +110,7 @@ void AudioEngine::playSoundPanning(Mix_Chunk* sound, Vector3f playerPos, Vector3
 	float p = ((M_PI * (panPosition + 1)) / 4);
 	int leftSound = cos(p) * 255;
 	int rightSound = sin(p) * 255;
-	Mix_SetPanning(1, leftSound, rightSound);
-
-	/**
-	// Assuming sound source is at x position 400 (Change later)
-	float panPosition;
-	float panDistance = 400;
-	float relativeXPosPlayer = xPosPlayer - xPosSound;
-	std::cout << "Player Position: " << relativeXPosPlayer << "\n";
-
-
-	// If above 800 or below 0 calculation won't work, change 
-	// later to be width of screen as variable
-	if (relativeXPosPlayer > panDistance) {
-		relativeXPosPlayer = panDistance;
-	}
-	else if(relativeXPosPlayer < -panDistance){
-		relativeXPosPlayer = -panDistance;
-	}
-
-	// Converting xPosPlayer into a percentage left or right
-	// of the sound source.
-	if (relativeXPosPlayer > 0) {
-		panPosition = relativeXPosPlayer / 400;
-	}
-	else if (relativeXPosPlayer < 0) {
-		panPosition = (relativeXPosPlayer / 400);
-	}
-	else if(relativeXPosPlayer == 0){
-		panPosition = 0;
-	}
-
-	// Reverse sign to make sound come out of correct side
-	panPosition = -panPosition;
-
-	std::cout << "Power Pan : " << panPosition << "\n";
-
-	// Calculates how much panning
-	float p = ((M_PI * (panPosition + 1))/4);
-	int leftSound = cos(p) * 255;
-	int rightSound = sin(p) * 255;
-	Mix_SetPanning(1, leftSound, rightSound);
-	//Mix_PlayChannel(1, sound, 0);
-	*/
+	Mix_SetPanning(affectedChannel, leftSound, rightSound);
 }
 
 void AudioEngine::calculateDistanceEffect3D(Mix_Chunk* sound, Vector3f playerPos, Vector3f soundPos, float maxDistance, int currentVolume) {
@@ -182,7 +148,9 @@ void AudioEngine::calculateDistanceEffect2D(Mix_Chunk* sound, Vector2f playerPos
 }
 
 void AudioEngine::calculateBehindSound(Mix_Chunk* sound, Vector3f playerPos, Vector3f soundPos, int playerRotation, 
-	int soundRotation, int playerSoundDetectAngle, int audioSoundDetectAngle) {
+	int soundRotation, int playerSoundDetectAngle, int audioSoundDetectAngle, int currentVolume) {
+	if (soundPos.z == playerPos.z && soundPos.x == playerPos.x) { return; }
+
 	bool playerFacing = false;
 	bool soundFacing = false;
 	
@@ -199,7 +167,7 @@ void AudioEngine::calculateBehindSound(Mix_Chunk* sound, Vector3f playerPos, Vec
 	float angleRad = atan(zDistance / xDistance);
 	int angleDeg = angleRad * 180 / M_PI;
 
-	if (playerPos.z > soundPos.z && playerPos.x > soundPos.x) {
+	if (playerPos.z >= soundPos.z && playerPos.x >= soundPos.x) {
 		targetAnglePlayer = 270 - angleDeg;
 		targetAngleSound = angleDeg;
 		upperTargetPlayer = targetAnglePlayer + playerSoundDetectAngle;
@@ -222,7 +190,7 @@ void AudioEngine::calculateBehindSound(Mix_Chunk* sound, Vector3f playerPos, Vec
 			playerFacing = true;
 		}
 	}
-	else if (playerPos.z > soundPos.z && playerPos.x < soundPos.x) {
+	else if (playerPos.z >= soundPos.z && playerPos.x <= soundPos.x) {
 		targetAnglePlayer = 90 + angleDeg;
 		targetAngleSound = 360 - angleDeg;
 		upperTargetPlayer = targetAnglePlayer + playerSoundDetectAngle;
@@ -245,7 +213,7 @@ void AudioEngine::calculateBehindSound(Mix_Chunk* sound, Vector3f playerPos, Vec
 			playerFacing = true;
 		}
 	}
-	else if (playerPos.z < soundPos.z && playerPos.x > soundPos.x) {
+	else if (playerPos.z <= soundPos.z && playerPos.x >= soundPos.x) {
 		targetAnglePlayer = 270 + angleDeg;
 		targetAngleSound = 180 - angleDeg;
 		upperTargetSound = targetAngleSound + audioSoundDetectAngle;
@@ -268,7 +236,7 @@ void AudioEngine::calculateBehindSound(Mix_Chunk* sound, Vector3f playerPos, Vec
 			soundFacing = true;
 		}
 	}
-	else if (playerPos.z < soundPos.z && playerPos.x < soundPos.x) {
+	else if (playerPos.z <= soundPos.z && playerPos.x <= soundPos.x) {
 		targetAnglePlayer = 90 - angleDeg;
 		targetAngleSound = 180 + angleDeg;
 		upperTargetSound = targetAngleSound + audioSoundDetectAngle;
@@ -292,67 +260,135 @@ void AudioEngine::calculateBehindSound(Mix_Chunk* sound, Vector3f playerPos, Vec
 		}
 	}
 
-	// WRONG WRONG WRONG WRONG FIX FIX FIX FIX, only one needs to be true
-	if (playerFacing && soundFacing) {
-		float newSoundVolume = getSoundVolume() * 0.7;
+	if (!(playerFacing && soundFacing)) {
+		float newSoundVolume = currentVolume * 0.6;
 		Mix_VolumeChunk(sound, newSoundVolume);
 	}
-
-	/*
-	int anglePlayerToSoundRad = acos(((playerPos.x * soundPos.z) + (playerPos.z + soundPos.x) /
-		((sqrt(pow(playerPos.x, 2) + pow(playerPos.z, 2) * sqrt(pow(soundPos.x, 2) + pow(soundPos.z, 2)))))));
-	int anglePlayerToSoundDeg = anglePlayerToSoundRad * 180 / M_PI;
-	std::cout << "Angle Beforeeeee: " << anglePlayerToSoundRad;
-	std::cout << "Angle Before: " << anglePlayerToSoundDeg;
-
-	float angleDiff = ((playerRotation - anglePlayerToSoundDeg + 180 + 360) % 360) - 180;
-	std::cout << "Angle After: " << angleDiff;
-
-	bool playerFacing = (angleDiff <= 90 && angleDiff >= -90);
-
-	if (playerFacing) {
-		return;
+	else if (!playerFacing || !soundFacing) {
+		float newSoundVolume = currentVolume * 0.8;
+		Mix_VolumeChunk(sound, newSoundVolume);
 	}
-	else {
-		float newSoundVolume = getSoundVolume() * 0.7;
-		playSound(sound, newSoundVolume);
-	}
-	*/
 }
 
-void AudioEngine::fadeOut(Mix_Chunk* sound, float fadeTimeStart, float fadeTimeEnd, int currentVolume) {
+void AudioEngine::calculateBehindSound(Mix_Chunk* sound, Vector3f playerPos, Vector3f soundPos, int playerRotation,
+	int soundRotation, int playerSoundDetectAngle, int currentVolume) {
+	if (soundPos.z == playerPos.z && soundPos.x == playerPos.x) { return; }
+
+	bool playerFacing = false;
+	float targetAnglePlayer = 0;
+	float upperTargetPlayer = 0;
+	float lowerTargetPlayer = 0;
+	float checker = 0;
+
+	float zDistance = fabsf(soundPos.z - playerPos.z);
+	float xDistance = fabsf(soundPos.x - playerPos.x);
+	float angleRad = atan(zDistance / xDistance);
+	int angleDeg = angleRad * 180 / M_PI;
+
+	if (playerPos.z > soundPos.z && playerPos.x > soundPos.x) {
+		targetAnglePlayer = 270 - angleDeg;
+		upperTargetPlayer = targetAnglePlayer + playerSoundDetectAngle;
+		lowerTargetPlayer = targetAnglePlayer - playerSoundDetectAngle;
+
+		if (playerRotation >= lowerTargetPlayer && playerRotation <= upperTargetPlayer) {
+			playerFacing = true;
+		}
+	}
+	else if (playerPos.z > soundPos.z && playerPos.x < soundPos.x) {
+		targetAnglePlayer = 90 + angleDeg;
+		upperTargetPlayer = targetAnglePlayer + playerSoundDetectAngle;
+		lowerTargetPlayer = targetAnglePlayer - playerSoundDetectAngle;
+
+		if (playerRotation >= lowerTargetPlayer && playerRotation <= upperTargetPlayer) {
+			playerFacing = true;
+		}
+	}
+	else if (playerPos.z < soundPos.z && playerPos.x > soundPos.x) {
+		targetAnglePlayer = 270 + angleDeg;
+		checker = targetAnglePlayer + playerSoundDetectAngle;
+		lowerTargetPlayer = targetAnglePlayer - playerSoundDetectAngle;
+		upperTargetPlayer;
+		if (checker > 360) {
+			upperTargetPlayer = checker - 360;
+			if (playerRotation >= lowerTargetPlayer || playerRotation <= upperTargetPlayer) {
+				playerFacing = true;
+			}
+		}
+		else {
+			if (playerRotation >= lowerTargetPlayer && playerRotation <= upperTargetPlayer) {
+				playerFacing = true;
+			}
+		}
+	}
+	else if (playerPos.z < soundPos.z && playerPos.x < soundPos.x) {
+		targetAnglePlayer = 90 - angleDeg;
+		upperTargetPlayer = targetAnglePlayer + playerSoundDetectAngle;
+		checker = targetAnglePlayer - playerSoundDetectAngle;
+		lowerTargetPlayer;
+		if (checker < 0) {
+			lowerTargetPlayer = 360 + checker;
+			if (playerRotation >= lowerTargetPlayer || playerRotation <= upperTargetPlayer) {
+				playerFacing = true;
+			}
+		}
+		else {
+			if (playerRotation >= lowerTargetPlayer && playerRotation <= upperTargetPlayer) {
+				playerFacing = true;
+			}
+		}
+	}
+
+	if (!playerFacing) {
+		float newSoundVolume = currentVolume * 0.7;
+		Mix_VolumeChunk(sound, newSoundVolume);
+	}
+}
+
+void AudioEngine::fadeOut(Mix_Chunk* sound, int channel, float fadeTimeStart, float fadeTimeEnd, int currentVolume) {
 	if (fadeTimeEnd > SDL_GetTicks()) {
 		float totalTime = fadeTimeEnd - fadeTimeStart;
 		float timeLeft = fadeTimeEnd - SDL_GetTicks();
 		float newVolume = (timeLeft / totalTime) * currentVolume;
 		Mix_VolumeChunk(sound, newVolume);
+		if (timeLeft <= 0.1) {
+			Mix_HaltChannel(channel);
+		}
 	}
 }
 
-void AudioEngine::fadeOut(Mix_Chunk* sound, float fadeTimeStart, float fadeTimeEnd, int currentVolume, float (*func)(float)) {
+void AudioEngine::fadeOut(Mix_Chunk* sound, int channel, float fadeTimeStart, float fadeTimeEnd, int currentVolume, float (*func)(float)) {
 	if (fadeTimeEnd > SDL_GetTicks()) {
 		float totalTime = fadeTimeEnd - fadeTimeStart;
 		float timeLeft = fadeTimeEnd - SDL_GetTicks();
 		float newVolume = func((timeLeft / totalTime) * currentVolume);
 		Mix_VolumeChunk(sound, newVolume);
+		if (timeLeft <= 0.1) {
+			Mix_HaltChannel(channel);
+		}
 	}
 }
 
-void AudioEngine::fadeIn(Mix_Chunk* sound, float fadeTimeStart, float fadeTimeEnd, int currentVolume) {
+void AudioEngine::fadeIn(Mix_Chunk* sound, int channel, float fadeTimeStart, float fadeTimeEnd, int currentVolume) {
 	if (fadeTimeEnd > SDL_GetTicks()) {
 		float totalTime = fadeTimeEnd - fadeTimeStart;
 		float timeLeft = fadeTimeEnd - SDL_GetTicks();
 		float newVolume = ((totalTime - timeLeft) / totalTime) * currentVolume;
 		Mix_VolumeChunk(sound, newVolume);
+		if (timeLeft <= 0.1) {
+			Mix_HaltChannel(channel);
+		}
 	}
 }
 
-void AudioEngine::fadeIn(Mix_Chunk* sound, float fadeTimeStart, float fadeTimeEnd, int currentVolume, float (*func)(float)) {
+void AudioEngine::fadeIn(Mix_Chunk* sound, int channel, float fadeTimeStart, float fadeTimeEnd, int currentVolume, float (*func)(float)) {
 	if (fadeTimeEnd > SDL_GetTicks()) {
 		float totalTime = fadeTimeEnd - fadeTimeStart;
 		float timeLeft = fadeTimeEnd - SDL_GetTicks();
 		float newVolume = func(((totalTime - timeLeft) / totalTime) * currentVolume);
 		Mix_VolumeChunk(sound, newVolume);
+		if(timeLeft <= 0.1){
+			Mix_HaltChannel(channel);
+		}
 	}
 }
 
