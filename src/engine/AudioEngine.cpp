@@ -60,6 +60,11 @@ void AudioEngine::addTag(std::string newTag) {
 	tags[newTag] = newNumber;
 }
 
+void AudioEngine::resetSound(Mix_Chunk* sound, int channel) {
+	Mix_VolumeChunk(sound, MIX_MAX_VOLUME);
+	Mix_UnregisterAllEffects(channel);
+}
+
 void AudioEngine::emptyChunk(Mix_Chunk* sound) {
 	Mix_FreeChunk(sound);
 }
@@ -344,7 +349,7 @@ void AudioEngine::calculateBehindSound(Mix_Chunk* sound, Vector3f playerPos, Vec
 	}
 }
 
-void AudioEngine::fadeOut(Mix_Chunk* sound, int channel, float fadeTimeStart, float fadeTimeEnd, int currentVolume) {
+bool AudioEngine::fadeOut(Mix_Chunk* sound, int channel, float fadeTimeStart, float fadeTimeEnd, int currentVolume) {
 	if (fadeTimeEnd > SDL_GetTicks()) {
 		float totalTime = fadeTimeEnd - fadeTimeStart;
 		float timeLeft = fadeTimeEnd - SDL_GetTicks();
@@ -352,11 +357,15 @@ void AudioEngine::fadeOut(Mix_Chunk* sound, int channel, float fadeTimeStart, fl
 		Mix_VolumeChunk(sound, newVolume);
 		if (timeLeft <= 0.1) {
 			Mix_HaltChannel(channel);
+			return false;
+		}
+		else {
+			return true;
 		}
 	}
 }
 
-void AudioEngine::fadeOut(Mix_Chunk* sound, int channel, float fadeTimeStart, float fadeTimeEnd, int currentVolume, float (*func)(float)) {
+bool AudioEngine::fadeOut(Mix_Chunk* sound, int channel, float fadeTimeStart, float fadeTimeEnd, int currentVolume, float (*func)(float)) {
 	if (fadeTimeEnd > SDL_GetTicks()) {
 		float totalTime = fadeTimeEnd - fadeTimeStart;
 		float timeLeft = fadeTimeEnd - SDL_GetTicks();
@@ -364,11 +373,15 @@ void AudioEngine::fadeOut(Mix_Chunk* sound, int channel, float fadeTimeStart, fl
 		Mix_VolumeChunk(sound, newVolume);
 		if (timeLeft <= 0.1) {
 			Mix_HaltChannel(channel);
+			return false;
+		}
+		else {
+			return true;
 		}
 	}
 }
 
-void AudioEngine::fadeIn(Mix_Chunk* sound, int channel, float fadeTimeStart, float fadeTimeEnd, int currentVolume) {
+bool AudioEngine::fadeIn(Mix_Chunk* sound, int channel, float fadeTimeStart, float fadeTimeEnd, int currentVolume) {
 	if (fadeTimeEnd > SDL_GetTicks()) {
 		float totalTime = fadeTimeEnd - fadeTimeStart;
 		float timeLeft = fadeTimeEnd - SDL_GetTicks();
@@ -376,18 +389,26 @@ void AudioEngine::fadeIn(Mix_Chunk* sound, int channel, float fadeTimeStart, flo
 		Mix_VolumeChunk(sound, newVolume);
 		if (timeLeft <= 0.1) {
 			Mix_HaltChannel(channel);
+			return false;
+		}
+		else {
+			return true;
 		}
 	}
 }
 
-void AudioEngine::fadeIn(Mix_Chunk* sound, int channel, float fadeTimeStart, float fadeTimeEnd, int currentVolume, float (*func)(float)) {
+bool AudioEngine::fadeIn(Mix_Chunk* sound, int channel, float fadeTimeStart, float fadeTimeEnd, int currentVolume, float (*func)(float)) {
 	if (fadeTimeEnd > SDL_GetTicks()) {
 		float totalTime = fadeTimeEnd - fadeTimeStart;
 		float timeLeft = fadeTimeEnd - SDL_GetTicks();
 		float newVolume = func(((totalTime - timeLeft) / totalTime) * currentVolume);
 		Mix_VolumeChunk(sound, newVolume);
-		if(timeLeft <= 0.1){
+		if (timeLeft <= 0.1) {
 			Mix_HaltChannel(channel);
+			return false;
+		}
+		else {
+			return true;
 		}
 	}
 }
@@ -399,19 +420,24 @@ AudioElement::AudioElement() {
 	fadeTimeEnd = 0;
 	groupTag = "";
 	maxDistance = 0;
+	currentlyFading = false;
 }
 
 AudioElement::AudioElement(Mix_Chunk* passedSound, int passedChannel) {
 	sound = passedSound;
 	channel = passedChannel;
 	groupTag = "";
-	fadeTimeStart = false;
+	fadeTimeStart = 0;
 	fadeTimeEnd = 0;
+	currentlyFading = false;
 }
 
 void AudioElement::startFadingOut(float passedFadeTime) {
-	setFadeTimeStart(SDL_GetTicks());
-	setFadeTimeEnd(passedFadeTime + SDL_GetTicks());
+	if (currentlyFading == false) {
+		setFadeTimeStart(SDL_GetTicks());
+		setFadeTimeEnd(passedFadeTime + SDL_GetTicks());
+		currentlyFading = true;
+	}
 
 }
 
@@ -437,6 +463,10 @@ void AudioElement::setGroupTag(std::string passedGroupTag) {
 
 void AudioElement::setMaxDistance(float passedMaxDistance) {
 	maxDistance = passedMaxDistance;
+}
+
+void AudioElement::setCurrentlyFading(bool passedCurrentlyFading) {
+	currentlyFading = passedCurrentlyFading;
 }
 
 Mix_Chunk* AudioElement::getSound() {
@@ -475,8 +505,9 @@ AudioElement3D::AudioElement3D(Mix_Chunk* passedSound, Vector3f passedSoundPosit
 	channel = passedChannel;
 	maxDistance = passedMaxDistance;
 	groupTag = "";
-	fadeTimeStart = false;
+	fadeTimeStart = 0;
 	fadeTimeEnd = 0;
+	currentlyFading = 0;
 	setDetectArc(passedDetectArc);
 }
 
@@ -518,8 +549,9 @@ AudioElement2D::AudioElement2D(Mix_Chunk* passedSound, Vector2f passedSoundPosit
 	channel = passedChannel;
 	maxDistance = passedMaxDistance;
 	groupTag = "";
-	fadeTimeStart = false;
+	fadeTimeStart = 0;
 	fadeTimeEnd = 0;
+	currentlyFading = false;
 }
 
 void AudioElement2D::setSoundPosition2D(Vector2f passedSoundPosition) {

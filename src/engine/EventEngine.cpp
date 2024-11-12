@@ -40,6 +40,12 @@ void EventEngine::updateKeys(const SDL_Keycode &key, bool keyDown) {
 		case SDLK_s:		index = Key::S; break;
 		case SDLK_ESCAPE:	index = Key::ESC; break;
 		case SDLK_SPACE:	index = Key::SPACE; break;
+		case SDLK_1:		index = Key::ONE; break;
+		case SDLK_2:		index = Key::TWO; break;
+		case SDLK_3:		index = Key::THREE; break;
+		case SDLK_4:		index = Key::FOUR; break;
+		case SDLK_5:		index = Key::FIVE; break;
+		case SDLK_6:		index = Key::SIX; break;
 		default:
 			return;	// we don't care about other keys, at least now
 	}

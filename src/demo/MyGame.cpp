@@ -25,10 +25,10 @@ MyGame::MyGame() : AbstractGame(), score(0), lives(3), numKeys(5), gameWon(false
 	//Mix_Music* background_music = ResourceManager::loadMP3("res/audio/DDLoop1.wav");
 	shootSound = new AudioElement3D(soundOne, Vector3f(-10, 0, 0), -1, 1000, 90, 0);
 	//jumpSound = new AudioElement(soundTwo, Vector3f(0, 0, 0), -1);
-	backgroundSound = new AudioElement3D(soundThree, Vector3f(0, 0, 0), 3, 128, 90, 0);
+	backgroundSound = new AudioElement3D(soundThree, Vector3f(WINDOW_WIDTH / 2, 0, WINDOW_HEIGHT / 2), 3, 1000, 90, 0);
 
 	//sfx->soundPanning(cube, shootSound->getSoundPosition3D(), 0, 1);
-	Mix_PlayChannel(1, backgroundSound->getSound(), 0);
+	Mix_PlayChannel(3, backgroundSound->getSound(), -1);
 	//sfx->calculateBehindSound(shootSound->getSound(), cube, shootSound->getSoundPosition3D(), 45, 235, 90, 90);
 	//sfx->calculateDistanceEffect(shootSound->getSound(), cube, shootSound->getSoundPosition());
 	//sfx->playMP3(background_music, -1);
@@ -79,6 +79,25 @@ void MyGame::handleKeyEvents() {
 	if (eventSystem->isPressed(Key::LEFT)) {
 		sfx->calculateDistanceEffect3D(shootSound->getSound(), cube, shootSound->getSoundPosition3D(), shootSound->getMaxDistance(), 128);
 	}
+	if (eventSystem->isPressed(Key::ONE)) {
+		sfx->soundPanning(cube, backgroundSound->getSoundPosition3D(), 0, 3);
+	}
+	if (eventSystem->isPressed(Key::TWO)) {
+		sfx->calculateDistanceEffect3D(backgroundSound->getSound(), cube, backgroundSound->getSoundPosition3D(), backgroundSound->getMaxDistance(), 128);
+	}
+	if (eventSystem->isPressed(Key::THREE)) {
+		sfx->calculateBehindSound(backgroundSound->getSound(), cube, backgroundSound->getSoundPosition3D(), 0, 
+			backgroundSound->getSoundRotation(), 90, 128);
+	}
+	if (eventSystem->isPressed(Key::SIX)) {
+		sfx->resetSound(backgroundSound->getSound(), 3);
+	}
+	if (eventSystem->isPressed(Key::SIX)) {
+		sfx->resetSound(backgroundSound->getSound(), 3);
+	}
+	if (eventSystem->isPressed(Key::SIX)) {
+		sfx->resetSound(backgroundSound->getSound(), 3);
+	}
 }
 
 // Use cube.z so you can move forward and backwards, y movement not important for demo
@@ -122,7 +141,8 @@ void MyGame::update() {
 	}
 
 	// Audio Fading
-	//sfx->fadeOut(backgroundSound->getSound(), backgroundSound->getFadeTimeStart(), backgroundSound->getFadeTimeEnd(), 128);
+	sfx->fadeOut(backgroundSound->getSound(), 3, backgroundSound->getFadeTimeStart(), backgroundSound->getFadeTimeEnd(), 128);
+	sfx->fadeIn(backgroundSound->getSound(), 3, backgroundSound->getFadeTimeStart(), backgroundSound->getFadeTimeEnd(), 128);
 }
 
 void MyGame::render() {

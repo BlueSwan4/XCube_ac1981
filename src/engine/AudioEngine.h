@@ -68,6 +68,35 @@ class AudioEngine {
 		void resumeChannel(int channel);
 
 		/**
+		* Assigns a channel to a group
+		*
+		* @param channel - the channel to add to a group
+		* @param group - the group to add the channel to
+		*
+		*/
+
+		void groupChannel(int channel, std::string groupTag);
+
+		/**
+		* Adds a tag to the tag map and a corresponding number
+		*
+		* @param newTag - the name of the new tag
+		*
+		*/
+
+		void addTag(std::string newTag);
+
+		/**
+		* Adds a tag to the tag map and a corresponding number
+		*
+		* @param sound - the sound to reset the volume for
+		* @param newTag - the channel to remove effects from
+		*
+		*/
+
+		void resetSound(Mix_Chunk* sound, int channel);
+
+		/**
 		* Frees audio chunks at the end of a session
 		*
 		* @param sound - the sound to play
@@ -141,7 +170,7 @@ class AudioEngine {
 			int playerRotation, int soundRotation, int playerSoundAngleDetect, int audioSoundAngleDetect, int currentVolume);
 
 		/**
-		* Fade out sound chunk
+		* Fade out sound chunk, returns true if still fading, otherwise returns false
 		* 
 		* @param sound - the sound to fade out
 		* @param fadeTimeStart - When the fade out started (used to calculate volume)
@@ -150,11 +179,11 @@ class AudioEngine {
 		* @param func - A function to chnagethe fading graph from linear to another funtion
 		*
 		*/
-		void fadeOut(Mix_Chunk* sound, int channel, float fadeTimeStart, float fadeTimeEnd, int currentVolume);
-		void fadeOut(Mix_Chunk* sound, int channel, float fadeTimeStart, float fadeTimeEnd, int currentVolume, float(*func)(float));
+		bool fadeOut(Mix_Chunk* sound, int channel, float fadeTimeStart, float fadeTimeEnd, int currentVolume);
+		bool fadeOut(Mix_Chunk* sound, int channel, float fadeTimeStart, float fadeTimeEnd, int currentVolume, float(*func)(float));
 
 		/**
-		* Fade in sound chunk
+		* Fade in sound chunk, returns true if still fading, otherwise returns false
 		*
 		* @param sound - the sound to fade in
 		* @param fadeTimeStart - When the fade out started (used to calculate volume)
@@ -163,28 +192,8 @@ class AudioEngine {
 		* @param func - A function to chnagethe fading graph from linear to another funtion
 		*
 		*/
-		void fadeIn(Mix_Chunk* sound, int channel, float fadeTimeStart, float fadeTimeEnd, int currentVolume);
-		void fadeIn(Mix_Chunk* sound, int channel, float fadeTimeStart, float fadeTimeEnd, int currentVolume, float(*func)(float));
-
-		/**
-		* Assigns a channel to a group
-		*
-		* @param channel - the channel to add to a group
-		* @param group - the group to add the channel to
-		*
-		*/
-
-		void groupChannel(int channel, std::string groupTag);
-
-		/**
-		* Adds a tag to the tag map and a corresponding number
-		*
-		* @param newTag - the name of the new tag
-		*
-		*/
-
-		void addTag(std::string newTag);
-
+		bool fadeIn(Mix_Chunk* sound, int channel, float fadeTimeStart, float fadeTimeEnd, int currentVolume);
+		bool fadeIn(Mix_Chunk* sound, int channel, float fadeTimeStart, float fadeTimeEnd, int currentVolume, float(*func)(float));
 };
 
 class AudioElement {
@@ -195,6 +204,7 @@ protected:
 	float fadeTimeEnd;
 	std::string groupTag;
 	float maxDistance;
+	bool currentlyFading;
 public:
 	// Constructor
 	AudioElement();
@@ -215,6 +225,7 @@ public:
 	void setFadeTimeEnd(float passedFadeTimeEnd);
 	void setGroupTag(std::string passedGroupTag);
 	void setMaxDistance(float passedMaxDistance);
+	void setCurrentlyFading(bool passedCurrentlyFading);
 
 	Mix_Chunk* getSound();
 	int getChannel();
