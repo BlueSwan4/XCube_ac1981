@@ -204,7 +204,8 @@ protected:
 	float fadeTimeEnd;
 	std::string groupTag;
 	float maxDistance;
-	bool currentlyFading;
+	bool currentlyFadingOut;
+	bool currentlyFadingIn;
 public:
 	// Constructor
 	AudioElement();
@@ -218,6 +219,14 @@ public:
 	*/
 	void startFadingOut(float passedFadeTime);
 
+	/**
+	* Set up the paramaters for fading out a sound
+	*
+	* @param passedFadeTime - duration of time to fade out over
+	*
+	*/
+	void startFadingIn(float passedFadeTime);
+
 	// Getters and Setters
 	void setSound(Mix_Chunk* passedSound);
 	void setChannel(int passedChannel);
@@ -225,7 +234,8 @@ public:
 	void setFadeTimeEnd(float passedFadeTimeEnd);
 	void setGroupTag(std::string passedGroupTag);
 	void setMaxDistance(float passedMaxDistance);
-	void setCurrentlyFading(bool passedCurrentlyFading);
+	void setCurrentlyFadingOut(bool passedCurrentlyFadingOut);
+	void setCurrentlyFadingIn(bool passedCurrentlyFadingIn);
 
 	Mix_Chunk* getSound();
 	int getChannel();
@@ -233,6 +243,8 @@ public:
 	float getFadeTimeEnd();
 	std::string getGroupTag();
 	float getMaxDistance();
+	bool getCurrentlyFadingIn();
+	bool getCurrentlyFadingOut();
 
 	/**
 	* Call this to manually to find the volue of a sound

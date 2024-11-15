@@ -420,25 +420,39 @@ AudioElement::AudioElement() {
 	fadeTimeEnd = 0;
 	groupTag = "";
 	maxDistance = 0;
-	currentlyFading = false;
+	currentlyFadingOut = false;
+	currentlyFadingIn = false;
 }
 
 AudioElement::AudioElement(Mix_Chunk* passedSound, int passedChannel) {
 	sound = passedSound;
 	channel = passedChannel;
-	groupTag = "";
 	fadeTimeStart = 0;
 	fadeTimeEnd = 0;
-	currentlyFading = false;
+	maxDistance = 0;
+	groupTag = "";
+	currentlyFadingIn = false;
+	currentlyFadingOut = false;
 }
 
 void AudioElement::startFadingOut(float passedFadeTime) {
-	if (currentlyFading == false) {
+	if (currentlyFadingOut == false) {
+		passedFadeTime = passedFadeTime * 1000;
+		currentlyFadingIn = false;
 		setFadeTimeStart(SDL_GetTicks());
 		setFadeTimeEnd(passedFadeTime + SDL_GetTicks());
-		currentlyFading = true;
+		currentlyFadingOut = true;
 	}
+}
 
+void AudioElement::startFadingIn(float passedFadeTime) {
+	if (currentlyFadingIn == false) {
+		passedFadeTime = passedFadeTime * 1000;
+		currentlyFadingOut = false;
+		setFadeTimeStart(SDL_GetTicks());
+		setFadeTimeEnd(passedFadeTime + SDL_GetTicks());
+		currentlyFadingIn = true;
+	}
 }
 
 void AudioElement::setSound(Mix_Chunk* passedSound) {
@@ -465,8 +479,12 @@ void AudioElement::setMaxDistance(float passedMaxDistance) {
 	maxDistance = passedMaxDistance;
 }
 
-void AudioElement::setCurrentlyFading(bool passedCurrentlyFading) {
-	currentlyFading = passedCurrentlyFading;
+void AudioElement::setCurrentlyFadingOut(bool passedCurrentlyFadingOut) {
+	currentlyFadingOut = passedCurrentlyFadingOut;
+}
+
+void AudioElement::setCurrentlyFadingIn(bool passedCurrentlyFadingIn) {
+	currentlyFadingIn = passedCurrentlyFadingIn;
 }
 
 Mix_Chunk* AudioElement::getSound() {
@@ -497,6 +515,14 @@ int AudioElement::getChunkVolume() {
 	return Mix_VolumeChunk(sound, -1);
 }
 
+bool AudioElement::getCurrentlyFadingOut() {
+	return currentlyFadingOut;
+}
+
+bool AudioElement::getCurrentlyFadingIn() {
+	return currentlyFadingIn;
+}
+
 AudioElement3D::AudioElement3D(Mix_Chunk* passedSound, Vector3f passedSoundPosition, int passedChannel,
 	float passedMaxDistance, int passedDetectArc, int passedSoundRotation) {
 	sound = passedSound;
@@ -507,8 +533,9 @@ AudioElement3D::AudioElement3D(Mix_Chunk* passedSound, Vector3f passedSoundPosit
 	groupTag = "";
 	fadeTimeStart = 0;
 	fadeTimeEnd = 0;
-	currentlyFading = 0;
 	setDetectArc(passedDetectArc);
+	currentlyFadingIn = false;
+	currentlyFadingOut = false;
 }
 
 void AudioElement3D::setSoundPosition3D(Vector3f passedSoundPosition) {
@@ -543,7 +570,8 @@ int AudioElement3D::getDetectArc() {
 	return detectArc;
 }
 
-AudioElement2D::AudioElement2D(Mix_Chunk* passedSound, Vector2f passedSoundPosition, int passedChannel, float passedMaxDistance) {
+AudioElement2D::AudioElement2D(Mix_Chunk* passedSound, Vector2f passedSoundPosition, 
+	int passedChannel, float passedMaxDistance) {
 	sound = passedSound;
 	soundPosition2D = passedSoundPosition;
 	channel = passedChannel;
@@ -551,7 +579,8 @@ AudioElement2D::AudioElement2D(Mix_Chunk* passedSound, Vector2f passedSoundPosit
 	groupTag = "";
 	fadeTimeStart = 0;
 	fadeTimeEnd = 0;
-	currentlyFading = false;
+	currentlyFadingIn = false;
+	currentlyFadingOut = false;
 }
 
 void AudioElement2D::setSoundPosition2D(Vector2f passedSoundPosition) {

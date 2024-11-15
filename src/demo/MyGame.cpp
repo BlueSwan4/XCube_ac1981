@@ -34,15 +34,7 @@ MyGame::MyGame() : AbstractGame(), score(0), lives(3), numKeys(5), gameWon(false
 	//sfx->playMP3(background_music, -1);
 
 	// Extra added code
-	/*
-	if (shootSound.getSound() == nullptr) {
-		std::cout << "Null Pointer";
-	}
-	else {
-		sfx->playSoundPanning(shootSound, 5);
-		//sfx->calculateDistanceEffect(shootSound);
-	}
-	*/
+	backgroundSound->startFadingIn(5);
 }
 
 MyGame::~MyGame() {
@@ -74,10 +66,10 @@ void MyGame::handleKeyEvents() {
 		velocity.z = -speed;
 	}
 	if (eventSystem->isPressed(Key::SPACE)) {
-		sfx->soundPanning(cube, shootSound->getSoundPosition3D(), 90, 1);
+
 	}
 	if (eventSystem->isPressed(Key::LEFT)) {
-		sfx->calculateDistanceEffect3D(shootSound->getSound(), cube, shootSound->getSoundPosition3D(), shootSound->getMaxDistance(), 128);
+
 	}
 	if (eventSystem->isPressed(Key::ONE)) {
 		sfx->soundPanning(cube, backgroundSound->getSoundPosition3D(), 0, 3);
@@ -89,11 +81,11 @@ void MyGame::handleKeyEvents() {
 		sfx->calculateBehindSound(backgroundSound->getSound(), cube, backgroundSound->getSoundPosition3D(), 0, 
 			backgroundSound->getSoundRotation(), 90, 128);
 	}
-	if (eventSystem->isPressed(Key::SIX)) {
-		sfx->resetSound(backgroundSound->getSound(), 3);
+	if (eventSystem->isPressed(Key::FOUR)) {
+		backgroundSound->startFadingIn(2);
 	}
-	if (eventSystem->isPressed(Key::SIX)) {
-		sfx->resetSound(backgroundSound->getSound(), 3);
+	if (eventSystem->isPressed(Key::FIVE)) {
+		backgroundSound->startFadingOut(2);
 	}
 	if (eventSystem->isPressed(Key::SIX)) {
 		sfx->resetSound(backgroundSound->getSound(), 3);
@@ -141,8 +133,14 @@ void MyGame::update() {
 	}
 
 	// Audio Fading
-	sfx->fadeOut(backgroundSound->getSound(), 3, backgroundSound->getFadeTimeStart(), backgroundSound->getFadeTimeEnd(), 128);
-	sfx->fadeIn(backgroundSound->getSound(), 3, backgroundSound->getFadeTimeStart(), backgroundSound->getFadeTimeEnd(), 128);
+	if (backgroundSound->getCurrentlyFadingOut()) {
+		bool isFading = sfx->fadeOut(backgroundSound->getSound(), -1, backgroundSound->getFadeTimeStart(), backgroundSound->getFadeTimeEnd(), 128);
+		backgroundSound->setCurrentlyFadingOut(isFading);
+	}
+	if (backgroundSound->getCurrentlyFadingIn()) {
+		bool isFading = sfx->fadeIn(backgroundSound->getSound(), 3, backgroundSound->getFadeTimeStart(), backgroundSound->getFadeTimeEnd(), 128);
+		backgroundSound->setCurrentlyFadingIn(isFading);
+	}
 }
 
 void MyGame::render() {
