@@ -95,7 +95,6 @@ void AudioEngine::soundPanning(Vector3f playerPos, Vector3f soundPos, int player
 		targetAnglePlayer = 90 - angleDeg;
 	}
 	relativeRotation = playerRotation - targetAnglePlayer;
-	std::cout << "Target Angle: " << targetAnglePlayer;
 
 	if (relativeRotation < 0) {
 		relativeRotation = 360 + relativeRotation;
@@ -115,6 +114,13 @@ void AudioEngine::soundPanning(Vector3f playerPos, Vector3f soundPos, int player
 	float p = ((M_PI * (panPosition + 1)) / 4);
 	int leftSound = cos(p) * 255;
 	int rightSound = sin(p) * 255;
+	if (leftSound < 0) {
+		int store = 0 - leftSound;
+		leftSound = rightSound;
+		rightSound = store;
+	}
+	std::cout << "Left: " << leftSound;
+	std::cout << "Right: " << rightSound;
 	Mix_SetPanning(affectedChannel, leftSound, rightSound);
 }
 
