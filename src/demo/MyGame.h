@@ -26,6 +26,7 @@ class MyGame : public AbstractGame {
 
 		/* GAMEPLAY */
 		int score, numKeys, lives;
+		int playerRotation = 0;
 		bool gameWon;
 
 		void handleKeyEvents();
