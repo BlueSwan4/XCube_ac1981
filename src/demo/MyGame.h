@@ -2,6 +2,9 @@
 #define __TEST_GAME_H__
 
 #include "../engine/AbstractGame.h"
+#include "../engine/custom/MyEngineSystem.h"
+#include "../engine/AudioEngine.h"
+#include "../engine/XCube2d.h"
 
 struct GameKey {
 	Point2 pos;

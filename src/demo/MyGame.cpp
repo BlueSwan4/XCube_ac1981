@@ -1,7 +1,4 @@
 #include "MyGame.h"
-#include "../engine/custom/MyEngineSystem.h"
-#include "../engine/AudioEngine.h"
-#include "../engine/XCube2d.h"
 
 MyGame::MyGame() : AbstractGame(), score(0), lives(3), numKeys(5), gameWon(false), cube(0, 300 ,0) {
 	TTF_Font * font = ResourceManager::loadFont("res/fonts/arial.ttf", 72);
@@ -15,14 +12,7 @@ MyGame::MyGame() : AbstractGame(), score(0), lives(3), numKeys(5), gameWon(false
 	backgroundSound = new AudioElement3D(soundThree, Vector3f(WINDOW_WIDTH / 2, 0, WINDOW_HEIGHT / 2), 3, 1000, 90, 0);
 	playerRotation = 0;
 
-	//sfx->soundPanning(cube, shootSound->getSoundPosition3D(), 0, 1);
 	Mix_PlayChannel(3, backgroundSound->getSound(), -1);
-	//sfx->calculateBehindSound(shootSound->getSound(), cube, shootSound->getSoundPosition3D(), 45, 235, 90, 90);
-	//sfx->calculateDistanceEffect(shootSound->getSound(), cube, shootSound->getSoundPosition());
-	//sfx->playMP3(background_music, -1);
-
-	// Extra added code
-	backgroundSound->startFadingIn(5);
 }
 
 MyGame::~MyGame() {
@@ -62,7 +52,8 @@ void MyGame::handleKeyEvents() {
 		velocity.z = -speed;
 	}
 	if (eventSystem->isPressed(Key::SPACE)) {
-
+		std::string easterEgg = "Violet_Cleak-CI517-2024";
+		gfx->drawText(easterEgg, WINDOW_WIDTH - easterEgg.length() * 40, 500);
 	}
 	if (eventSystem->isPressed(Key::LEFT)) {
 		sfx->muteSound(backgroundSound->getSound());
