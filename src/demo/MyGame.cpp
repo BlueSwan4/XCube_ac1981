@@ -51,10 +51,6 @@ void MyGame::handleKeyEvents() {
 	if (eventSystem->isPressed(Key::DOWN)) {
 		velocity.z = -speed;
 	}
-	if (eventSystem->isPressed(Key::SPACE)) {
-		std::string easterEgg = "Violet_Cleak-CI517-2024";
-		gfx->drawText(easterEgg, WINDOW_WIDTH - easterEgg.length() * 40, 500);
-	}
 	if (eventSystem->isPressed(Key::LEFT)) {
 		sfx->muteSound(backgroundSound->getSound());
 	}
@@ -136,4 +132,8 @@ void MyGame::renderUI() {
 	gfx->drawText(xCube, WINDOW_WIDTH - xCube.length() * 40, 250);
 	gfx->drawText(zCube, WINDOW_WIDTH - zCube.length() * 40, 325);
 	gfx->drawText(rotCube, WINDOW_WIDTH - rotCube.length() * 40, 400);
+	if (eventSystem->isPressed(Key::SPACE)) {
+		std::string easterEgg = "Violet_Cleak-CI517-2024";
+		gfx->drawText(easterEgg, WINDOW_WIDTH - easterEgg.length() * 35, 475);
+	}
 }

@@ -74,9 +74,7 @@ void AudioEngine::emptyChunk(Mix_Chunk* sound) {
 }
 
 void AudioEngine::soundPanning(Vector3f playerPos, Vector3f soundPos, int playerRotation, int affectedChannel) {
-
 	if (soundPos.z == playerPos.z && soundPos.x == playerPos.x) {return;}
-
 	float targetAnglePlayer = 0;
 	float relativeRotation;
 	float panPosition = -1;
@@ -85,9 +83,6 @@ void AudioEngine::soundPanning(Vector3f playerPos, Vector3f soundPos, int player
 	float angleRad = atan(zDistance / xDistance);
 	int angleDeg = angleRad * 180 / M_PI;
 
-	if (soundPos.z == playerPos.z && soundPos.x == playerPos.x) {
-		return;
-	}
 
 	if (playerPos.z >= soundPos.z && playerPos.x >= soundPos.x) {
 		targetAnglePlayer = 270 - angleDeg;
@@ -102,9 +97,7 @@ void AudioEngine::soundPanning(Vector3f playerPos, Vector3f soundPos, int player
 
 	if (relativeRotation < 0) {
 		relativeRotation = 360 + relativeRotation;
-	}
-
-	if (relativeRotation >= 0 && relativeRotation < 90) {
+	} else if (relativeRotation >= 0 && relativeRotation < 90) {
 		panPosition = relativeRotation / 90;
 		panPosition = -panPosition;
 	} else if (relativeRotation >= 90 && relativeRotation <= 270) {
@@ -123,8 +116,6 @@ void AudioEngine::soundPanning(Vector3f playerPos, Vector3f soundPos, int player
 		leftSound = rightSound;
 		rightSound = store;
 	}
-	std::cout << "Left: " << leftSound;
-	std::cout << "Right: " << rightSound;
 	Mix_SetPanning(affectedChannel, leftSound, rightSound);
 }
 
@@ -142,7 +133,6 @@ void AudioEngine::calculateDistanceEffect3D(Mix_Chunk* sound, Vector3f playerPos
 		}
 		newSoundVolume = percentage * currentVolume;
 	}
-	std::cout << "Sound Volume : " << newSoundVolume << "\n";
 	Mix_VolumeChunk(sound, newSoundVolume);
 }
 
