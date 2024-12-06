@@ -25,6 +25,7 @@ class AudioEngine {
 		* @param volume - in the range [0..128]
 		*/
 		void setSoundVolume(const int &);
+		void muteSound(Mix_Chunk* sound);
 		int getSoundVolume();
 
 		void playSound(Mix_Chunk * sound);

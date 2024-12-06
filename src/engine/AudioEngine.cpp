@@ -17,6 +17,10 @@ void AudioEngine::setSoundVolume(const int & _volume) {
 	volume = _volume;
 }
 
+void AudioEngine::muteSound(Mix_Chunk* sound) {
+	Mix_VolumeChunk(sound, 0);
+}
+
 int AudioEngine::getSoundVolume() {
 	return volume;
 }
@@ -47,7 +51,7 @@ void AudioEngine::pauseChannel(int channel) {
 }
 
 void AudioEngine::resumeChannel(int channel) {
-	Mix_Pause(channel);
+	Mix_Resume(channel);
 }
 
 void AudioEngine::groupChannel(int channel, std::string groupTag) {

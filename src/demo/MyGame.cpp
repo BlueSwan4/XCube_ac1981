@@ -65,7 +65,7 @@ void MyGame::handleKeyEvents() {
 
 	}
 	if (eventSystem->isPressed(Key::LEFT)) {
-
+		sfx->muteSound(backgroundSound->getSound());
 	}
 	if (eventSystem->isPressed(Key::ONE)) {
 		sfx->soundPanning(cube, backgroundSound->getSoundPosition3D(), playerRotation, 3);
@@ -78,10 +78,10 @@ void MyGame::handleKeyEvents() {
 			backgroundSound->getSoundRotation(), 90, 128);
 	}
 	if (eventSystem->isPressed(Key::FOUR)) {
-		backgroundSound->startFadingIn(2);
+		backgroundSound->startFadingIn(5);
 	}
 	if (eventSystem->isPressed(Key::FIVE)) {
-		backgroundSound->startFadingOut(2);
+		backgroundSound->startFadingOut(5);
 	}
 	if (eventSystem->isPressed(Key::SIX)) {
 		sfx->resetSound(backgroundSound->getSound(), 3);
@@ -139,10 +139,10 @@ void MyGame::renderUI() {
 	std::string xCube = "X Cube " + std::to_string((int)cube.x);
 	std::string zCube = "Z Cube " + std::to_string((int)cube.z);
 	std::string rotCube = "Rot Cube " + std::to_string((int)playerRotation);
-	gfx->drawText(xSound, 780 - xSound.length() * 40, 25);
-	gfx->drawText(zSound, 780 - zSound.length() * 40, 100);
-	gfx->drawText(rotSound, 780 - rotSound.length() * 40, 175);
-	gfx->drawText(xCube, 780 - xCube.length() * 40, 250);
-	gfx->drawText(zCube, 780 - zCube.length() * 40, 325);
-	gfx->drawText(rotCube, 780 - rotCube.length() * 40, 400);
+	gfx->drawText(xSound, WINDOW_WIDTH - xSound.length() * 40, 25);
+	gfx->drawText(zSound, WINDOW_WIDTH - zSound.length() * 40, 100);
+	gfx->drawText(rotSound, WINDOW_WIDTH - rotSound.length() * 40, 175);
+	gfx->drawText(xCube, WINDOW_WIDTH - xCube.length() * 40, 250);
+	gfx->drawText(zCube, WINDOW_WIDTH - zCube.length() * 40, 325);
+	gfx->drawText(rotCube, WINDOW_WIDTH - rotCube.length() * 40, 400);
 }
